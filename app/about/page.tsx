@@ -1,11 +1,14 @@
 import Navbar from '../components/Navbar'
 import ContactLinks from '../components/ContactLinks'
+import { getArticleList } from '../data/articles/index'
 import './About.css'
 
 export default function AboutPage() {
+  const allArticles = getArticleList()
+  
   return (
     <>
-      <Navbar />
+      <Navbar articles={allArticles} />
       <article className="about-page">
         <div className="about-container reading-content">
           <section className="about-intro-section">
@@ -114,6 +117,27 @@ export default function AboutPage() {
           <section className="about-section about-contact-section">
             <h2 className="about-section-title">联系方式</h2>
             <ContactLinks layout="stacked" className="about-contact-links" />
+          </section>
+
+          <section className="about-section">
+            <h2 className="about-section-title">订阅</h2>
+            <div className="about-subscription">
+              <p>
+                如果你想及时收到我的最新文章，可以通过 RSS 订阅我的博客。
+              </p>
+              <a 
+                href="/feed.xml" 
+                className="rss-subscribe-link"
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="6.18" cy="17.82" r="2.18"/>
+                  <path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/>
+                </svg>
+                RSS 订阅
+              </a>
+            </div>
           </section>
         </div>
       </article>

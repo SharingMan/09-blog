@@ -7,9 +7,9 @@ export default function PostsPage() {
   
   return (
     <>
-      <Navbar />
+      <Navbar articles={allArticles} />
       <main style={{ paddingTop: '80px' }}>
-        <ArticleList articles={allArticles} />
+        <ArticleList articles={allArticles} showExcerpt={true} />
       </main>
     </>
   )

@@ -12,6 +12,7 @@
   --font-serif-en: 'Playfair Display', 'Newsreader', serif;
   --font-serif-cn: 'Noto Serif SC', serif;
   --font-sans: 'Inter', 'Noto Sans SC', sans-serif;
+  --font-mono: 'Courier New', Courier, 'Consolas', 'Monaco', monospace;
   
   /* Spacing */
   --spacing-xs: 0.5rem;
@@ -53,6 +54,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* 移动端字体大小优化 */
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
 }
 
 /* Typography */
@@ -77,6 +86,7 @@ h3 {
 }
 
 p {
+  font-family: var(--font-sans);
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
 }
@@ -98,6 +108,30 @@ a:hover {
   padding: 0 var(--spacing-sm);
 }
 
+/* 优化文本渲染 */
+.reading-content {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* 中文排版优化 */
+.reading-content p {
+  text-align: justify;
+  text-justify: inter-ideograph;
+  hyphens: none;
+  word-break: keep-all;
+}
+
+/* 移动端禁用两端对齐 */
+@media (max-width: 768px) {
+  .reading-content p {
+    text-align: left;
+    text-justify: auto;
+  }
+}
+
 /* Blockquote */
 blockquote {
   border-left: 3px solid var(--text-tertiary);
@@ -116,12 +150,13 @@ pre {
   padding: var(--spacing-md);
   overflow-x: auto;
   margin: var(--spacing-md) 0;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
 code {
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   background-color: var(--bg-secondary);
   padding: 0.2em 0.4em;
   border-radius: 3px;

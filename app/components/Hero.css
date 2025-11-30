@@ -78,8 +78,42 @@
     height: 120px;
   }
   
+  .hero-name {
+    font-size: 2rem;
+  }
+  
+  .hero-greeting {
+    font-size: 0.95rem;
+  }
+  
+  .hero-philosophy {
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+  
   .social-links {
     margin-top: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: calc(var(--spacing-md) + 60px) var(--spacing-sm) var(--spacing-sm);
+    min-height: auto;
+  }
+  
+  .avatar {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .hero-name {
+    font-size: 1.75rem;
+  }
+  
+  .hero-philosophy {
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-md);
   }
 }
 

@@ -1,6 +1,8 @@
 import Navbar from '../../components/Navbar'
 import MarkdownContent from '../../components/MarkdownContent'
-import { getArticleById } from '../../data/articles/index'
+import TableOfContents from '../../components/TableOfContents'
+import { getArticleById, getAdjacentArticles, getArticleList } from '../../data/articles/index'
+import Link from 'next/link'
 import './ArticleDetail.css'
 
 interface ArticleDetailProps {
@@ -18,20 +20,66 @@ export default function ArticleDetail({ params }: ArticleDetailProps) {
     content: '抱歉，这篇文章不存在。'
   }
 
+  const { prev, next } = getAdjacentArticles(params.id)
+  const allArticles = getArticleList()
+
   return (
     <>
-      <Navbar />
+      <Navbar articles={allArticles} />
       <article className="article-detail">
-        <div className="article-header">
-          <h1 className="article-title">{article.title}</h1>
-          <div className="article-meta">
-            <span>{article.date}</span>
-            <span className="meta-separator">·</span>
-            <span>{article.readTime}</span>
+        <div className="article-detail-wrapper">
+          <div className="article-main">
+            <div className="article-header">
+              <h1 className="article-title">{article.title}</h1>
+              <div className="article-meta">
+                <span>{article.date}</span>
+                <span className="meta-separator">·</span>
+                <span>{article.readTime}</span>
+              </div>
+              {article.category && (
+                <div className="article-header-meta">
+                  <Link href={`/categories/${encodeURIComponent(article.category)}`} className="article-category-link">
+                    {article.category}
+                  </Link>
+                </div>
+              )}
+              {article.tags && article.tags.length > 0 && (
+                <div className="article-header-tags">
+                  {article.tags.map((tag) => (
+                    <Link 
+                      key={tag} 
+                      href={`/tags/${encodeURIComponent(tag)}`}
+                      className="article-header-tag"
+                    >
+                      {tag}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="article-content reading-content">
+              <MarkdownContent content={article.content} />
+            </div>
+            
+            <nav className="article-navigation">
+              {prev && (
+                <Link href={`/posts/${prev.id}`} className="nav-link nav-prev">
+                  <span className="nav-label">上一篇</span>
+                  <span className="nav-title">{prev.title}</span>
+                </Link>
+              )}
+              {next && (
+                <Link href={`/posts/${next.id}`} className="nav-link nav-next">
+                  <span className="nav-label">下一篇</span>
+                  <span className="nav-title">{next.title}</span>
+                </Link>
+              )}
+            </nav>
           </div>
-        </div>
-        <div className="article-content reading-content">
-          <MarkdownContent content={article.content} />
+          
+          <aside className="article-sidebar">
+            <TableOfContents />
+          </aside>
         </div>
       </article>
     </>

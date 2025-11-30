@@ -44,6 +44,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .navbar-links a {
@@ -79,14 +80,30 @@
 @media (max-width: 768px) {
   .navbar-container {
     padding: 0 var(--spacing-sm);
+    flex-wrap: wrap;
   }
   
   .navbar-links {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    font-size: 0.85rem;
   }
   
   .navbar-links a {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+  }
+  
+  .rss-link {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-logo {
+    font-size: 1.1rem;
+  }
+  
+  .navbar-links {
+    gap: 0.5rem;
   }
 }
 
