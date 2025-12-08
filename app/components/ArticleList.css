@@ -12,7 +12,7 @@
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
-  transition: padding-left 0.3s ease, opacity 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .article-item:last-child {
@@ -20,13 +20,23 @@
 }
 
 .article-item:hover {
-  padding-left: var(--spacing-xs);
   opacity: 0.9;
 }
 
-.article-item a {
+.article-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.article-link {
   display: block;
   text-decoration: none;
+  transition: padding-left 0.3s ease;
+}
+
+.article-item:hover .article-link {
+  padding-left: var(--spacing-xs);
 }
 
 .article-category {

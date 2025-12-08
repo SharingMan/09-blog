@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Navbar from '../../components/Navbar'
 import MarkdownContent from '../../components/MarkdownContent'
 import TableOfContents from '../../components/TableOfContents'
@@ -8,6 +9,45 @@ import './ArticleDetail.css'
 interface ArticleDetailProps {
   params: {
     id: string
+  }
+}
+
+export async function generateMetadata({ params }: ArticleDetailProps): Promise<Metadata> {
+  const article = getArticleById(params.id)
+  
+  if (!article) {
+    return {
+      title: '文章未找到',
+    }
+  }
+
+  const keywords = ['xinhai', '新海说', '新海日记']
+  if (article.category) {
+    keywords.push(article.category)
+  }
+  if (article.tags && article.tags.length > 0) {
+    keywords.push(...article.tags)
+  }
+
+  // 提取文章摘要（前200字符）
+  const excerpt = article.excerpt || article.content
+    .replace(/[#*`>]/g, '')
+    .replace(/\n+/g, ' ')
+    .trim()
+    .substring(0, 200)
+
+  return {
+    title: article.title,
+    description: excerpt,
+    keywords: keywords,
+    openGraph: {
+      title: article.title,
+      description: excerpt,
+      type: 'article',
+      publishedTime: article.date,
+      authors: ['新海'],
+      tags: article.tags || [],
+    },
   }
 }
 

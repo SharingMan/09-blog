@@ -77,11 +77,13 @@
 }
 
 .about-section p {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif-body);
   font-size: clamp(1rem, 2vw, 1.125rem);
-  line-height: 1.9;
+  line-height: 1.85;
   color: var(--text-primary);
   margin-bottom: var(--spacing-md);
+  text-align: justify;
+  text-justify: inter-ideograph;
 }
 
 .about-section p:last-child {
@@ -192,6 +194,11 @@
   .about-section {
     margin-bottom: var(--spacing-lg);
     padding-bottom: var(--spacing-md);
+  }
+  
+  .about-section p {
+    text-align: left;
+    text-justify: auto;
   }
   
   .about-contact-links {

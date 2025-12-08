@@ -69,10 +69,9 @@ export default function Navbar({ articles = [] }: NavbarProps) {
         <div className="navbar-links">
           <Link href="/">首页</Link>
           <Link href="/posts">文章</Link>
-          <Link href="/categories">分类</Link>
-          <Link href="/tags">标签</Link>
-          <Link href="/archive">归档</Link>
+          <Link href="/archive">分类</Link>
           <Link href="/about">关于</Link>
+          <Link href="/admin/write">写文章</Link>
           {clientArticles.length > 0 && <SearchBar articles={clientArticles} />}
           <button 
             className="theme-toggle"

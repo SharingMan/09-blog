@@ -1,7 +1,14 @@
+import type { Metadata } from 'next'
 import Navbar from '../components/Navbar'
 import ContactLinks from '../components/ContactLinks'
 import { getArticleList } from '../data/articles/index'
 import './About.css'
+
+export const metadata: Metadata = {
+  title: '关于',
+  description: '关于新海说｜新海的个人博客，分享思考与生活',
+  keywords: ['xinhai', '新海说', '新海日记', '关于', '个人简介'],
+}
 
 export default function AboutPage() {
   const allArticles = getArticleList()

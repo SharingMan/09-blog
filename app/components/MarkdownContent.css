@@ -1,7 +1,7 @@
 .markdown-content {
-  font-family: var(--font-sans);
-  font-size: clamp(1rem, 2vw, 1.125rem);
-  line-height: 1.8;
+  font-family: var(--font-serif-body);
+  font-size: clamp(1.0625rem, 2vw, 1.125rem);
+  line-height: 1.85;
   color: var(--text-primary);
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -26,22 +26,24 @@
 }
 
 .markdown-content p {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif-body);
   margin-bottom: var(--spacing-md);
-  line-height: 1.9;
+  line-height: 1.85;
+  text-align: justify;
+  text-justify: inter-ideograph;
 }
 
 .markdown-content ul,
 .markdown-content ol {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif-body);
   margin: var(--spacing-md) 0;
   padding-left: var(--spacing-md);
 }
 
 .markdown-content li {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif-body);
   margin-bottom: var(--spacing-xs);
-  line-height: 1.8;
+  line-height: 1.85;
 }
 
 .markdown-content strong {
@@ -153,6 +155,8 @@
   
   .markdown-content p {
     margin-bottom: var(--spacing-sm);
+    text-align: left;
+    text-justify: auto;
   }
   
   .markdown-content ul,
