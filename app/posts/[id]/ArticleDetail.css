@@ -109,12 +109,14 @@
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-sm);
   font-size: clamp(1.5rem, 4vw, 2rem);
+  scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
 }
 
 .article-content h3 {
   margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-xs);
   font-size: clamp(1.25rem, 3vw, 1.5rem);
+  scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
 }
 
 .article-content ul,
@@ -210,6 +212,11 @@
   
   .article-content {
     font-size: 1rem;
+  }
+  
+  .article-content h2,
+  .article-content h3 {
+    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
   }
   
   .article-navigation {

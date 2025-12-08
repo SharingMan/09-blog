@@ -103,7 +103,16 @@ export default function TableOfContents() {
                 e.preventDefault()
                 const element = document.getElementById(heading.id)
                 if (element) {
-                  element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  // 获取导航栏高度，确保标题不被遮挡
+                  const navbar = document.querySelector('.navbar')
+                  const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 80
+                  const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+                  const offsetPosition = elementPosition - navbarHeight - 20 // 额外 20px 间距
+                  
+                  window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                  })
                   // 更新 URL 但不跳转
                   window.history.pushState(null, '', `#${heading.id}`)
                 }

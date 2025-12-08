@@ -16,6 +16,7 @@
   font-weight: 600;
   letter-spacing: 0;
   color: var(--text-primary);
+  scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
 }
 
 .markdown-content h3 {
@@ -26,6 +27,7 @@
   font-weight: 600;
   letter-spacing: 0;
   color: var(--text-primary);
+  scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
 }
 
 .markdown-content h4 {
@@ -36,6 +38,7 @@
   font-weight: 600;
   letter-spacing: 0;
   color: var(--text-primary);
+  scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
 }
 
 .markdown-content p {
@@ -163,11 +166,17 @@
   .markdown-content h2 {
     margin-top: var(--spacing-md);
     font-size: 1.5rem;
+    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
   }
   
   .markdown-content h3 {
     margin-top: var(--spacing-sm);
     font-size: 1.25rem;
+    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
+  }
+  
+  .markdown-content h4 {
+    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
   }
   
   .markdown-content p {
