@@ -49,6 +49,12 @@
 .toc-level-3 {
   padding-left: var(--spacing-sm);
   font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.toc-level-4 {
+  padding-left: var(--spacing-md);
+  font-weight: 400;
   font-size: 0.85rem;
 }
 

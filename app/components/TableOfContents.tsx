@@ -9,35 +9,81 @@ interface Heading {
   level: number
 }
 
+// 生成标题 ID（支持中文）
+function generateHeadingId(text: string): string {
+  // 使用更友好的方式生成 ID：保留中文和英文，只移除特殊字符
+  return text
+    .trim()
+    .replace(/[^\u4e00-\u9fa5\w\s-]/g, '') // 保留中文、字母数字、空格和连字符
+    .replace(/\s+/g, '-') // 空格替换为连字符
+    .toLowerCase()
+    .substring(0, 50) || 'heading'
+}
+
 export default function TableOfContents() {
   const [headings, setHeadings] = useState<Heading[]>([])
 
   useEffect(() => {
-    const articleContent = document.querySelector('.article-content')
-    if (!articleContent) return
+    // 等待内容渲染完成后再查找标题
+    const updateHeadings = () => {
+      const articleContent = document.querySelector('.article-content .markdown-content')
+      if (!articleContent) return
 
-    const headingElements = articleContent.querySelectorAll('h2, h3')
-    const headingList: Heading[] = []
+      // 支持 h2, h3, h4 级别的标题（h1 通常是文章标题，不包括）
+      const headingElements = articleContent.querySelectorAll('h2, h3, h4')
+      const headingList: Heading[] = []
 
-    headingElements.forEach((heading) => {
-      const text = heading.textContent || ''
-      const level = parseInt(heading.tagName.charAt(1))
-      
-      // 如果标题没有 ID，生成一个
-      if (!heading.id && text) {
-        heading.id = text
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .substring(0, 50)
-      }
-      
-      if (heading.id) {
+      headingElements.forEach((heading) => {
+        const text = heading.textContent?.trim() || ''
+        if (!text) return
+        
+        const level = parseInt(heading.tagName.charAt(1))
+        
+        // 如果标题没有 ID，生成一个
+        if (!heading.id) {
+          heading.id = generateHeadingId(text)
+        }
+        
+        // 确保 ID 唯一（如果有重复，添加索引）
+        let uniqueId = heading.id
+        let counter = 1
+        while (document.getElementById(uniqueId) && document.getElementById(uniqueId) !== heading) {
+          uniqueId = `${heading.id}-${counter}`
+          counter++
+        }
+        heading.id = uniqueId
+        
         headingList.push({ id: heading.id, text, level })
-      }
+      })
+
+      setHeadings(headingList)
+    }
+
+    // 立即执行一次
+    updateHeadings()
+
+    // 使用 MutationObserver 监听 DOM 变化，确保标题 ID 生成后能正确获取
+    const observer = new MutationObserver(() => {
+      updateHeadings()
     })
 
-    setHeadings(headingList)
+    const articleContent = document.querySelector('.article-content')
+    if (articleContent) {
+      observer.observe(articleContent, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['id']
+      })
+    }
+
+    // 延迟执行一次，确保 MarkdownContent 渲染完成
+    const timeoutId = setTimeout(updateHeadings, 500)
+
+    return () => {
+      observer.disconnect()
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   if (headings.length === 0) return null

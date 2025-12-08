@@ -9,44 +9,51 @@ interface MarkdownContentProps {
   content: string
 }
 
-// 生成标题 ID
+// 生成标题 ID（支持中文）
 function generateHeadingId(text: string): string {
+  // 使用更友好的方式生成 ID：保留中文和英文，只移除特殊字符
   return text
+    .trim()
+    .replace(/[^\u4e00-\u9fa5\w\s-]/g, '') // 保留中文、字母数字、空格和连字符
+    .replace(/\s+/g, '-') // 空格替换为连字符
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .substring(0, 50)
+    .substring(0, 50) || 'heading'
+}
+
+// 提取文本内容（处理 React 节点）
+function extractText(children: any): string {
+  if (typeof children === 'string') {
+    return children
+  }
+  if (Array.isArray(children)) {
+    return children.map(c => extractText(c)).join('')
+  }
+  if (children && typeof children === 'object' && 'props' in children) {
+    return extractText(children.props.children)
+  }
+  return ''
 }
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
-  useEffect(() => {
-    // 为所有标题添加 ID
-    const headings = document.querySelectorAll('.markdown-content h2, .markdown-content h3')
-    headings.forEach((heading) => {
-      if (!heading.id && heading.textContent) {
-        heading.id = generateHeadingId(heading.textContent)
-      }
-    })
-  }, [content])
-
   return (
     <div className="markdown-content">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
           h2: ({ node, children, ...props }: any) => {
-            const text = Array.isArray(children) 
-              ? children.map(c => typeof c === 'string' ? c : '').join('')
-              : (typeof children === 'string' ? children : '')
-            const id = generateHeadingId(text || 'heading')
+            const text = extractText(children)
+            const id = generateHeadingId(text || 'heading-2')
             return <h2 id={id} {...props}>{children}</h2>
           },
           h3: ({ node, children, ...props }: any) => {
-            const text = Array.isArray(children) 
-              ? children.map(c => typeof c === 'string' ? c : '').join('')
-              : (typeof children === 'string' ? children : '')
-            const id = generateHeadingId(text || 'heading')
+            const text = extractText(children)
+            const id = generateHeadingId(text || 'heading-3')
             return <h3 id={id} {...props}>{children}</h3>
+          },
+          h4: ({ node, children, ...props }: any) => {
+            const text = extractText(children)
+            const id = generateHeadingId(text || 'heading-4')
+            return <h4 id={id} {...props}>{children}</h4>
           },
           p: ({ node, ...props }) => <p {...props} />,
           ul: ({ node, ...props }) => <ul {...props} />,

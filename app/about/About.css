@@ -80,6 +80,7 @@
   font-family: var(--font-serif-body);
   font-size: clamp(1rem, 2vw, 1.125rem);
   line-height: 1.85;
+  letter-spacing: 0;
   color: var(--text-primary);
   margin-bottom: var(--spacing-md);
   text-align: justify;
