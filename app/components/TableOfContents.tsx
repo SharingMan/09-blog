@@ -24,10 +24,18 @@ export default function TableOfContents() {
   const [headings, setHeadings] = useState<Heading[]>([])
 
   useEffect(() => {
+    let isUpdating = false // 防止无限循环的标志
+    
     // 等待内容渲染完成后再查找标题
     const updateHeadings = () => {
+      if (isUpdating) return // 如果正在更新，直接返回
+      isUpdating = true
+      
       const articleContent = document.querySelector('.article-content .markdown-content')
-      if (!articleContent) return
+      if (!articleContent) {
+        isUpdating = false
+        return
+      }
 
       // 支持 h2, h3, h4 级别的标题（h1 通常是文章标题，不包括）
       const headingElements = articleContent.querySelectorAll('h2, h3, h4')
@@ -39,7 +47,7 @@ export default function TableOfContents() {
         
         const level = parseInt(heading.tagName.charAt(1))
         
-        // 如果标题没有 ID，生成一个
+        // 如果标题没有 ID，生成一个（只在第一次）
         if (!heading.id) {
           heading.id = generateHeadingId(text)
         }
@@ -47,24 +55,43 @@ export default function TableOfContents() {
         // 确保 ID 唯一（如果有重复，添加索引）
         let uniqueId = heading.id
         let counter = 1
-        while (document.getElementById(uniqueId) && document.getElementById(uniqueId) !== heading) {
+        const existingElement = document.getElementById(uniqueId)
+        if (existingElement && existingElement !== heading) {
+          // 临时禁用 observer，避免触发循环
           uniqueId = `${heading.id}-${counter}`
           counter++
+          // 检查新的 uniqueId 是否也存在
+          while (document.getElementById(uniqueId) && document.getElementById(uniqueId) !== heading) {
+            uniqueId = `${heading.id}-${counter}`
+            counter++
+          }
+          // 只在真正需要修改时才修改
+          if (heading.id !== uniqueId) {
+            heading.id = uniqueId
+          }
         }
-        heading.id = uniqueId
         
         headingList.push({ id: heading.id, text, level })
       })
 
       setHeadings(headingList)
+      isUpdating = false
     }
 
-    // 立即执行一次
-    updateHeadings()
+    // 延迟执行，确保 MarkdownContent 渲染完成
+    const timeoutId1 = setTimeout(updateHeadings, 100)
+    const timeoutId2 = setTimeout(updateHeadings, 500)
 
-    // 使用 MutationObserver 监听 DOM 变化，确保标题 ID 生成后能正确获取
-    const observer = new MutationObserver(() => {
-      updateHeadings()
+    // 使用 MutationObserver 只监听子节点变化，不监听属性变化（避免循环）
+    const observer = new MutationObserver((mutations) => {
+      // 只在添加新节点时更新，忽略属性变化
+      const hasNewNodes = mutations.some(mutation => 
+        mutation.type === 'childList' && mutation.addedNodes.length > 0
+      )
+      if (hasNewNodes && !isUpdating) {
+        // 延迟执行，避免频繁更新
+        setTimeout(updateHeadings, 200)
+      }
     })
 
     const articleContent = document.querySelector('.article-content')
@@ -72,17 +99,15 @@ export default function TableOfContents() {
       observer.observe(articleContent, {
         childList: true,
         subtree: true,
-        attributes: true,
-        attributeFilter: ['id']
+        // 不监听 attributes，避免无限循环
+        attributes: false
       })
     }
 
-    // 延迟执行一次，确保 MarkdownContent 渲染完成
-    const timeoutId = setTimeout(updateHeadings, 500)
-
     return () => {
       observer.disconnect()
-      clearTimeout(timeoutId)
+      clearTimeout(timeoutId1)
+      clearTimeout(timeoutId2)
     }
   }, [])
 
@@ -101,20 +126,30 @@ export default function TableOfContents() {
               href={`#${heading.id}`}
               onClick={(e) => {
                 e.preventDefault()
-                const element = document.getElementById(heading.id)
-                if (element) {
-                  // 获取导航栏高度，确保标题不被遮挡
-                  const navbar = document.querySelector('.navbar')
-                  const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 80
-                  const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
-                  const offsetPosition = elementPosition - navbarHeight - 20 // 额外 20px 间距
-                  
-                  window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                  })
-                  // 更新 URL 但不跳转
-                  window.history.pushState(null, '', `#${heading.id}`)
+                try {
+                  const element = document.getElementById(heading.id)
+                  if (element) {
+                    // 获取导航栏高度，确保标题不被遮挡
+                    const navbar = document.querySelector('.navbar')
+                    const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 80
+                    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+                    const offsetPosition = elementPosition - navbarHeight - 20 // 额外 20px 间距
+                    
+                    // 使用 requestAnimationFrame 确保 DOM 更新完成
+                    requestAnimationFrame(() => {
+                      window.scrollTo({
+                        top: Math.max(0, offsetPosition),
+                        behavior: 'smooth'
+                      })
+                    })
+                    
+                    // 更新 URL 但不跳转（延迟执行，避免冲突）
+                    setTimeout(() => {
+                      window.history.pushState(null, '', `#${heading.id}`)
+                    }, 100)
+                  }
+                } catch (error) {
+                  console.error('Error scrolling to heading:', error)
                 }
               }}
             >
