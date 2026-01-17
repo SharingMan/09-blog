@@ -1,68 +1,121 @@
 .markdown-content {
   font-family: var(--font-serif-body);
   font-size: clamp(1.0625rem, 2vw, 1.125rem);
-  line-height: 1.85;
-  letter-spacing: 0;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
   color: var(--text-primary);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  max-width: 65ch;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .markdown-content h2 {
-  margin-top: var(--spacing-lg);
-  margin-bottom: var(--spacing-sm);
+  margin-top: 3em;
+  margin-bottom: 1.2em;
   font-size: clamp(1.5rem, 4vw, 2rem);
   font-family: var(--font-serif-cn);
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   color: var(--text-primary);
   scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.6em;
+  position: relative;
+}
+
+.markdown-content h2:first-child {
+  margin-top: 0;
+}
+
+.markdown-content h2::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background-color: var(--text-primary);
+  opacity: 0.3;
 }
 
 .markdown-content h3 {
-  margin-top: var(--spacing-md);
-  margin-bottom: var(--spacing-xs);
+  margin-top: 2.5em;
+  margin-bottom: 1em;
   font-size: clamp(1.25rem, 3vw, 1.5rem);
   font-family: var(--font-serif-cn);
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: 0.01em;
   color: var(--text-primary);
   scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
+  padding-left: 0.5em;
+  border-left: 3px solid var(--border-color);
 }
 
 .markdown-content h4 {
-  margin-top: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
+  margin-top: 2em;
+  margin-bottom: 0.8em;
   font-size: clamp(1.1rem, 2.5vw, 1.3rem);
   font-family: var(--font-serif-cn);
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: 0.01em;
   color: var(--text-primary);
   scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
 }
 
 .markdown-content p {
   font-family: var(--font-serif-body);
-  margin-bottom: var(--spacing-md);
-  line-height: 1.85;
-  letter-spacing: 0;
+  margin-bottom: 1.6em;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
   text-align: justify;
   text-justify: inter-ideograph;
+  word-spacing: 0.05em;
+  orphans: 3;
+  widows: 3;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
 }
 
 .markdown-content ul,
 .markdown-content ol {
   font-family: var(--font-serif-body);
-  margin: var(--spacing-md) 0;
-  padding-left: var(--spacing-md);
-  letter-spacing: 0;
+  margin: 1.8em 0;
+  padding-left: 2em;
+  letter-spacing: 0.01em;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
 }
 
 .markdown-content li {
   font-family: var(--font-serif-body);
-  margin-bottom: var(--spacing-xs);
-  line-height: 1.85;
-  letter-spacing: 0;
+  margin-bottom: 0.9em;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
+  padding-left: 0.5em;
+  position: relative;
+}
+
+.markdown-content li:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content ul li::marker {
+  color: var(--text-secondary);
+}
+
+.markdown-content ol li::marker {
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .markdown-content strong {
@@ -90,42 +143,104 @@
 .markdown-content img {
   max-width: 100%;
   height: auto;
-  margin: var(--spacing-md) 0;
-  border-radius: 4px;
+  margin: 2.5em auto;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: var(--bg-secondary);
+  padding: 0.5em;
+}
+
+.markdown-content img:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .markdown-content hr {
   border: none;
-  border-top: 1px solid var(--border-color);
-  margin: var(--spacing-lg) 0;
+  border-top: 2px solid var(--border-color);
+  margin: 3em 0;
+  width: 60px;
+  margin-left: 0;
+}
+
+.markdown-content .table-wrapper {
+  overflow-x: auto;
+  margin: 2.5em 0;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .markdown-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: var(--spacing-md) 0;
+  margin: 0;
+  min-width: 100%;
+  background-color: var(--bg-primary);
 }
 
 .markdown-content table th,
 .markdown-content table td {
   border: 1px solid var(--border-color);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 1em 1.2em;
   text-align: left;
+  line-height: 1.7;
+  font-size: 0.95em;
 }
 
 .markdown-content table th {
   font-weight: 600;
   background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-serif-cn);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.markdown-content table tr:nth-child(even) {
+  background-color: var(--bg-secondary);
+}
+
+.markdown-content table tr:hover {
+  background-color: var(--bg-secondary);
+  opacity: 0.9;
 }
 
 .markdown-content blockquote {
-  border-left: 3px solid var(--border-color);
-  padding-left: var(--spacing-md);
-  margin: var(--spacing-md) 0;
+  border-left: 4px solid var(--border-color);
+  padding: 1.2em 1.8em;
+  margin: 2.5em 0;
   font-family: var(--font-serif-en);
   font-style: italic;
-  letter-spacing: 0;
+  letter-spacing: 0.01em;
   color: var(--text-secondary);
+  background: linear-gradient(to right, var(--bg-secondary) 0%, transparent 100%);
+  border-radius: 0 8px 8px 0;
+  line-height: 1.85;
+  position: relative;
+}
+
+.markdown-content blockquote::before {
+  content: '"';
+  font-size: 3em;
+  line-height: 0.1em;
+  color: var(--border-color);
+  position: absolute;
+  left: 0.3em;
+  top: 0.3em;
+  font-family: var(--font-serif-en);
+}
+
+.markdown-content blockquote p {
+  margin-bottom: 0.6em;
+  position: relative;
+  z-index: 1;
+}
+
+.markdown-content blockquote p:last-child {
+  margin-bottom: 0;
 }
 
 .markdown-content pre {
@@ -160,46 +275,64 @@
 @media (max-width: 768px) {
   .markdown-content {
     font-size: 1rem;
-    line-height: 1.75;
+    line-height: 1.8;
+    padding: 0 0.5rem;
   }
   
   .markdown-content h2 {
-    margin-top: var(--spacing-md);
+    margin-top: 2em;
+    margin-bottom: 1em;
     font-size: 1.5rem;
-    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
+    scroll-margin-top: 80px;
+    padding-bottom: 0.5em;
   }
   
   .markdown-content h3 {
-    margin-top: var(--spacing-sm);
+    margin-top: 2em;
+    margin-bottom: 0.8em;
     font-size: 1.25rem;
-    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
+    scroll-margin-top: 80px;
+    padding-left: 0.4em;
   }
   
   .markdown-content h4 {
-    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
+    margin-top: 1.5em;
+    margin-bottom: 0.6em;
+    scroll-margin-top: 80px;
   }
   
   .markdown-content p {
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: 1.2em;
     text-align: left;
     text-justify: auto;
   }
   
   .markdown-content ul,
   .markdown-content ol {
-    padding-left: var(--spacing-sm);
+    padding-left: 1.5em;
+    margin: 1.5em 0;
   }
   
   .markdown-content blockquote {
-    padding-left: var(--spacing-sm);
-    margin: var(--spacing-sm) 0;
+    padding: 1em 1.2em;
+    margin: 2em 0;
+    padding-left: 1.2em;
+  }
+  
+  .markdown-content blockquote::before {
+    left: 0.2em;
+    font-size: 2.5em;
   }
   
   .markdown-content pre {
-    padding: var(--spacing-sm);
+    padding: 1em;
     font-size: 0.85em;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+  
+  .markdown-content .table-wrapper {
+    margin: 2em 0;
   }
   
   .markdown-content table {
@@ -208,22 +341,55 @@
     -webkit-overflow-scrolling: touch;
   }
   
+  .markdown-content table th,
+  .markdown-content table td {
+    padding: 0.8em 1em;
+    font-size: 0.9em;
+  }
+  
   .markdown-content img {
-    margin: var(--spacing-sm) 0;
+    margin: 2em auto;
+    border-radius: 8px;
+  }
+  
+  .markdown-content hr {
+    margin: 2.5em 0;
   }
 }
 
 @media (max-width: 480px) {
   .markdown-content {
     font-size: 0.95rem;
+    line-height: 1.75;
+    padding: 0 0.75rem;
   }
   
   .markdown-content h2 {
     font-size: 1.35rem;
+    margin-top: 1.8em;
   }
   
   .markdown-content h3 {
     font-size: 1.15rem;
+    margin-top: 1.8em;
+  }
+  
+  .markdown-content h4 {
+    font-size: 1.05rem;
+    margin-top: 1.5em;
+  }
+  
+  .markdown-content p {
+    margin-bottom: 1em;
+  }
+  
+  .markdown-content blockquote {
+    padding: 1em;
+    margin: 1.8em 0;
+  }
+  
+  .markdown-content img {
+    margin: 1.8em auto;
   }
 }
 

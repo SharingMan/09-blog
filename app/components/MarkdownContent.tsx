@@ -68,6 +68,16 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
             )
           },
           pre: ({ node, ...props }) => <pre {...props} />,
+          table: ({ node, ...props }: any) => (
+            <div className="table-wrapper">
+              <table {...props} />
+            </div>
+          ),
+          thead: ({ node, ...props }: any) => <thead {...props} />,
+          tbody: ({ node, ...props }: any) => <tbody {...props} />,
+          tr: ({ node, ...props }: any) => <tr {...props} />,
+          th: ({ node, ...props }: any) => <th {...props} />,
+          td: ({ node, ...props }: any) => <td {...props} />,
         }}
       >
         {content}
