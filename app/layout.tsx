@@ -1,5 +1,31 @@
 import type { Metadata } from 'next'
+import { Inter, Noto_Serif_SC, Playfair_Display, Newsreader } from 'next/font/google'
 import './globals.css'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const notoSerifSC = Noto_Serif_SC({
+  weight: ['400', '600'],
+  subsets: ['latin'],
+  variable: '--font-noto-serif-sc',
+  display: 'swap',
+})
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+})
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  variable: '--font-newsreader',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: {
@@ -25,7 +51,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
-    url: 'https://xinhai.blog',
+    url: 'https://xinhaiblog.top',
     siteName: '新海说',
     title: '新海说',
     description: '新海说｜极简、高雅的瑞士风个人博客，新海日记，分享思考与生活',
@@ -47,17 +73,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN" data-theme="light" suppressHydrationWarning>
+    <html
+      lang="zh-CN"
+      data-theme="light"
+      suppressHydrationWarning
+      className={`${inter.variable} ${notoSerifSC.variable} ${playfair.variable} ${newsreader.variable}`}
+    >
       <head>
-        <link rel="icon" href="/avatar.jpg" type="image/jpeg" />
-        <link rel="apple-touch-icon" href="/avatar.jpg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Newsreader:wght@400;700&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet" />
         <link rel="alternate" type="application/rss+xml" title="新海说 RSS" href="/feed.xml" />
         <meta name="author" content="新海" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="canonical" href="https://xinhai.blog" />
+        <link rel="canonical" href="https://xinhaiblog.top" />
       </head>
       <body>{children}</body>
     </html>
