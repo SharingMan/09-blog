@@ -78,6 +78,14 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           tr: ({ node, ...props }: any) => <tr {...props} />,
           th: ({ node, ...props }: any) => <th {...props} />,
           td: ({ node, ...props }: any) => <td {...props} />,
+          img: ({ node, ...props }: any) => (
+            <img
+              loading="lazy"
+              decoding="async"
+              {...props}
+              style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '2em auto' }}
+            />
+          ),
         }}
       >
         {content}
