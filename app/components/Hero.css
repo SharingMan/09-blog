@@ -73,6 +73,10 @@
     min-height: calc(100vh - 60px);
   }
   
+  .avatar-wrapper {
+    margin-bottom: var(--spacing-sm);
+  }
+  
   .avatar {
     width: 120px;
     height: 120px;
@@ -80,15 +84,19 @@
   
   .hero-name {
     font-size: 2rem;
+    margin-bottom: 0.5rem;
   }
   
   .hero-greeting {
     font-size: 0.95rem;
+    margin-bottom: var(--spacing-sm);
   }
   
   .hero-philosophy {
     font-size: 0.95rem;
     line-height: 1.75;
+    padding: 0 var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
   }
   
   .social-links {
@@ -98,8 +106,16 @@
 
 @media (max-width: 480px) {
   .hero {
-    padding: calc(var(--spacing-md) + 60px) var(--spacing-sm) var(--spacing-sm);
+    padding: calc(var(--spacing-md) + 60px) var(--spacing-sm) var(--spacing-md);
     min-height: auto;
+  }
+  
+  .hero-container {
+    padding: 0;
+  }
+  
+  .avatar-wrapper {
+    margin-bottom: var(--spacing-sm);
   }
   
   .avatar {
@@ -109,11 +125,19 @@
   
   .hero-name {
     font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .hero-greeting {
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-sm);
   }
   
   .hero-philosophy {
     font-size: 0.9rem;
+    line-height: 1.7;
     margin-bottom: var(--spacing-md);
+    padding: 0;
   }
 }
 

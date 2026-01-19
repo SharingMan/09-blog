@@ -1,6 +1,5 @@
 'use client'
 
-import ContactLinks from './ContactLinks'
 import './Hero.css'
 
 export default function Hero() {
@@ -24,9 +23,6 @@ export default function Hero() {
         <p className="hero-philosophy">
           <em>"我坚信做有趣、有用的产品一定会帮助到更多人，这也是我做产品的意义"</em>
         </p>
-        <nav className="social-links" aria-label="联系方式">
-          <ContactLinks layout="inline" />
-        </nav>
       </div>
     </section>
   )

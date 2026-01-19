@@ -70,6 +70,7 @@ export default function Navbar({ articles = [] }: NavbarProps) {
           <Link href="/">首页</Link>
           <Link href="/posts">文章</Link>
           <Link href="/archive">分类</Link>
+          <Link href="/works">作品</Link>
           <Link href="/about">关于</Link>
           <Link href="/admin/write">写文章</Link>
           {clientArticles.length > 0 && <SearchBar articles={clientArticles} />}

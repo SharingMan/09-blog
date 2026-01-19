@@ -78,9 +78,18 @@
 }
 
 @media (max-width: 768px) {
+  .navbar {
+    padding: var(--spacing-xs) 0;
+  }
+  
   .navbar-container {
     padding: 0 var(--spacing-sm);
     flex-wrap: wrap;
+  }
+  
+  .navbar-logo {
+    font-size: 1.1rem;
+    padding: 0.25rem 0;
   }
   
   .navbar-links {
@@ -90,6 +99,19 @@
   
   .navbar-links a {
     font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .theme-toggle {
+    padding: 0.25rem;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .rss-link {
@@ -98,12 +120,31 @@
 }
 
 @media (max-width: 480px) {
+  .navbar {
+    padding: 0.5rem 0;
+  }
+  
+  .navbar-container {
+    padding: 0 var(--spacing-xs);
+  }
+  
   .navbar-logo {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   
   .navbar-links {
-    gap: 0.5rem;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .navbar-links a {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.4rem;
+  }
+  
+  .theme-toggle {
+    font-size: 1.1rem;
+    padding: 0.25rem;
   }
 }
 

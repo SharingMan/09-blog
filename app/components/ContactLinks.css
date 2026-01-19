@@ -84,5 +84,39 @@
   .contact-chip-group {
     gap: var(--spacing-sm);
   }
+  
+  .contact-chip {
+    padding: var(--spacing-xs) var(--spacing-md);
+    min-height: 44px;
+  }
+  
+  .contact-chip-group--stacked .contact-chip {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-chip-group {
+    gap: var(--spacing-xs);
+  }
+  
+  .contact-chip {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 48px;
+    font-size: 0.9rem;
+  }
+  
+  .contact-chip-group--stacked .contact-chip {
+    min-height: 52px;
+  }
+  
+  .contact-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  
+  .contact-subtext {
+    font-size: 0.75rem;
+  }
 }
 
