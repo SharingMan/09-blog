@@ -23,7 +23,7 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
   return (
     <section className="article-list">
       <div className="article-list-container">
-        {articles.map((article, index) => (
+        {articles.map((article) => (
           <article key={article.id} className="article-item">
             <Link href={`/posts/${article.id}`} className="article-card">
               {article.coverImage && (
@@ -37,12 +37,9 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
               )}
               <div className="article-content">
                 <div className="article-meta-top">
-                  <div className="article-meta-left">
-                    <span className="article-index">{String(index + 1).padStart(2, '0')}</span>
-                    {article.category && (
-                      <span className="article-category">{article.category}</span>
-                    )}
-                  </div>
+                  {article.category && (
+                    <span className="article-category">{article.category}</span>
+                  )}
                   <span className="article-date">{article.date}</span>
                 </div>
 

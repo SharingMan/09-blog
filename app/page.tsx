@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import ArticleList from './components/ArticleList'
+import Link from 'next/link'
 import ContactLinks from './components/ContactLinks'
 import { getArticleList } from './data/articles/index'
 import './page.css'
@@ -20,13 +21,18 @@ export default function Home() {
   // 首页只显示最新的 3 篇文章
   const allArticles = getArticleList()
   const recentArticles = allArticles.slice(0, 3)
-  
+
   return (
     <>
       <Navbar articles={allArticles} />
       <main>
         <Hero />
         <ArticleList articles={recentArticles} />
+        <div className="more-articles-container">
+          <Link href="/posts" className="more-articles-link">
+            <span className="more-articles-icon">■</span> 更多文章......
+          </Link>
+        </div>
         <section className="home-contact-section">
           <div className="home-contact-container reading-content">
             <h2 className="home-contact-title">联系方式</h2>

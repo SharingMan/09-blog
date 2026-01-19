@@ -75,20 +75,6 @@
   margin-bottom: 0.25rem;
 }
 
-.article-meta-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.article-index {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 700;
-  color: #d93025;
-  margin-right: 0.25rem;
-}
-
 .article-category {
   font-family: var(--font-sans);
   font-size: 0.75rem;
