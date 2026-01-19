@@ -162,6 +162,31 @@ const notoSans = Noto_Sans_SC({
 2. 配置反向代理到 Vercel
 3. 利用 Cloudflare 的全球网络加速
 
+## 方案七：使用 enhanced-FaaS-in-China（社区方案）
+
+这是一个专门针对 Vercel、Netlify 等平台在大陆访问速度优化的开源项目。
+
+**项目地址**：[https://github.com/xingpingcn/enhanced-FaaS-in-China](https://github.com/xingpingcn/enhanced-FaaS-in-China)
+
+### 原理
+该项目通过筛选出国内访问速度较快的 Vercel 节点 IP，并通过特定的 CNAME 记录提供服务。
+
+### 使用条件
+**必须拥有自定义域名**（不能使用 `xinhaiblog.vercel.app` 这种默认子域名），因为你需要修改域名的 DNS 解析记录。
+
+### 配置步骤
+1. **购买域名**：如果没有，需先购买一个域名（推荐 NameSilo, 阿里云, 腾讯云等）。
+2. **绑定 Vercel**：在 Vercel 项目设置 -> Domains 中添加你的域名。
+3. **修改 DNS 记录**：在你的域名 DNS 服务商处（如阿里云 DNS），将 CNAME 记录修改为：
+   - **记录类型**：CNAME
+   - **主机记录**：`@` 或 `www`
+   - **记录值**：`vercel-cname.xingpingcn.top`
+   *(原 Vercel 默认是 `cname.vercel-dns.com`)*
+
+### 优缺点
+- ✅ **优点**：配置简单，无需服务器，国内访问速度提升明显。
+- ⚠️ **缺点**：依赖第三方维护的 DNS 记录；如果该项目停止维护，可能导致访问中断（需切回官方 CNAME）。
+
 ## 🚀 快速实施建议
 
 ### 立即可做（无需额外成本）
