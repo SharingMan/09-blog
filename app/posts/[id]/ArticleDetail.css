@@ -109,14 +109,16 @@
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-sm);
   font-size: clamp(1.5rem, 4vw, 2rem);
-  scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
+  scroll-margin-top: 100px;
+  /* 确保滚动时不被导航栏遮挡 */
 }
 
 .article-content h3 {
   margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-xs);
   font-size: clamp(1.25rem, 3vw, 1.5rem);
-  scroll-margin-top: 100px; /* 确保滚动时不被导航栏遮挡 */
+  scroll-margin-top: 100px;
+  /* 确保滚动时不被导航栏遮挡 */
 }
 
 .article-content ul,
@@ -194,7 +196,7 @@
   .article-detail-wrapper {
     grid-template-columns: 1fr;
   }
-  
+
   .article-sidebar {
     display: none;
   }
@@ -203,28 +205,44 @@
 @media (max-width: 768px) {
   .article-detail {
     padding: calc(60px + var(--spacing-md)) var(--spacing-sm) var(--spacing-lg);
+    overflow-x: hidden;
+    /* 防止横向滚动 */
+    width: 100%;
+    box-sizing: border-box;
   }
-  
+
   .article-header {
     margin-bottom: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
+    word-break: break-word;
+    /* 防止长标题溢出 */
   }
-  
+
   .article-content {
     font-size: 1rem;
+    width: 100%;
+    /* 确保内容不超过容器 */
   }
-  
+
   .article-content h2,
   .article-content h3 {
-    scroll-margin-top: 80px; /* 移动端导航栏较矮 */
+    scroll-margin-top: 80px;
+    /* 移动端导航栏较矮 */
   }
-  
+
   .article-navigation {
     grid-template-columns: 1fr;
+    width: 100%;
+    box-sizing: border-box;
   }
-  
+
   .nav-next {
     text-align: left;
   }
 }
 
+@media (max-width: 480px) {
+  .article-detail {
+    padding: calc(60px + var(--spacing-sm)) 1rem var(--spacing-lg);
+  }
+}
