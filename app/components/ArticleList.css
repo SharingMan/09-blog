@@ -83,11 +83,10 @@
 
 .article-index {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: var(--text-tertiary);
-  opacity: 0.5;
-  font-style: italic;
+  color: #d93025;
+  margin-right: 0.25rem;
 }
 
 .article-category {
