@@ -80,19 +80,19 @@
     font-size: 0.85rem;
     padding: 0.4rem 0.6rem;
   }
-  
+
   .search-input:focus {
     width: 180px;
   }
-  
+
   .search-results {
     max-height: 300px;
   }
-  
+
   .search-result-title {
     font-size: 0.9rem;
   }
-  
+
   .search-result-excerpt {
     font-size: 0.8rem;
   }
@@ -100,11 +100,11 @@
 
 @media (max-width: 480px) {
   .search-input {
-    width: 120px;
+    width: 80px;
+    padding: 0.3rem 0.5rem;
   }
-  
+
   .search-input:focus {
-    width: 150px;
+    width: 140px;
   }
 }
-
