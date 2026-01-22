@@ -21,8 +21,10 @@ export default function Navbar({ articles = [] }: NavbarProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [scrolled, setScrolled] = useState(false)
   const [clientArticles, setClientArticles] = useState<Article[]>(articles)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     // 如果没有传入文章，从 API 获取
     if (articles.length === 0) {
       fetch('/api/articles')
@@ -35,6 +37,8 @@ export default function Navbar({ articles = [] }: NavbarProps) {
   }, [articles])
 
   useEffect(() => {
+    if (!mounted) return
+    
     // Check for saved theme preference on mount
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null
     if (savedTheme) {
@@ -51,7 +55,7 @@ export default function Navbar({ articles = [] }: NavbarProps) {
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [mounted])
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
@@ -61,7 +65,7 @@ export default function Navbar({ articles = [] }: NavbarProps) {
   }
 
   return (
-    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} suppressHydrationWarning>
       <div className="navbar-container">
         <Link href="/" className="navbar-logo">
           新海说
@@ -78,8 +82,9 @@ export default function Navbar({ articles = [] }: NavbarProps) {
             className="theme-toggle"
             onClick={toggleTheme}
             aria-label="切换主题"
+            suppressHydrationWarning
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {mounted ? (theme === 'light' ? '🌙' : '☀️') : '🌙'}
           </button>
         </div>
       </div>

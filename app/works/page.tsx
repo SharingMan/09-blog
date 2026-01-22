@@ -32,6 +32,13 @@ const projects: Project[] = [
     tags: ['Markdown', '编辑器', '微信公众号', '工具'],
     emoji: '✍️',
   },
+  {
+    title: 'Notion同步教程网站',
+    description: '一个教程展示网站，提供清晰的内容组织和良好的学习体验。使用现代化的技术栈构建，支持响应式设计，帮助用户更好地学习和探索知识。',
+    url: 'https://12-tutorial-site.vercel.app/',
+    tags: ['Next.js', 'Notion', '教程', '学习', '网站'],
+    emoji: '📚',
+  },
 ]
 
 export default function WorksPage() {

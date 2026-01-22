@@ -20,9 +20,16 @@ export default function SearchBar({ articles }: SearchBarProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Article[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false)
@@ -31,7 +38,7 @@ export default function SearchBar({ articles }: SearchBarProps) {
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [mounted])
 
   const handleSearch = (value: string) => {
     setQuery(value)
@@ -50,6 +57,21 @@ export default function SearchBar({ articles }: SearchBarProps) {
 
     setResults(matched)
     setIsOpen(matched.length > 0)
+  }
+
+  if (!mounted) {
+    return (
+      <div className="search-container" ref={searchRef}>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="搜索文章..."
+          value=""
+          readOnly
+          disabled
+        />
+      </div>
+    )
   }
 
   return (
