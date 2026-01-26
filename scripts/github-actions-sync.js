@@ -9,6 +9,26 @@ const { Client } = require('@notionhq/client');
 const fs = require('fs');
 const path = require('path');
 
+// 读取 .env.local 文件
+function loadEnv() {
+  const envPath = path.join(__dirname, '..', '.env.local');
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, 'utf-8');
+    content.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...valueParts] = trimmed.split('=');
+        if (key && valueParts.length > 0) {
+          const value = valueParts.join('=').trim();
+          process.env[key.trim()] = value.replace(/^["']|["']$/g, '');
+        }
+      }
+    });
+  }
+}
+
+loadEnv();
+
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
@@ -174,6 +194,10 @@ async function main() {
   
   console.log(`📚 找到 ${pages.length} 个页面\n`);
   
+  // 获取最后同步时间
+  const lastSyncTime = syncState.lastSyncTime ? new Date(syncState.lastSyncTime) : new Date(0);
+  console.log(`📅 最后同步时间: ${lastSyncTime.toLocaleString('zh-CN')}\n`);
+  
   let syncedCount = 0;
   let updatedCount = 0;
   let skippedCount = 0;
@@ -181,9 +205,11 @@ async function main() {
   for (const page of pages) {
     try {
       const pageId = page.id;
-      const properties = page.properties || {};
+      const lastEditedTime = new Date(page.last_edited_time);
+      const isSynced = !!syncState.syncedPages[pageId];
       
-      // 获取标题
+      // 获取标题（先获取标题用于日志）
+      const properties = page.properties || {};
       let title = '未命名';
       const titleKeys = ['标题', 'Title', 'title', 'Name', 'name'];
       for (const key of titleKeys) {
@@ -192,6 +218,23 @@ async function main() {
           title = prop.title[0].plain_text;
           break;
         }
+      }
+      
+      // 增量同步逻辑：
+      // 1. 如果页面未同步（新文章），总是同步
+      // 2. 如果页面已同步但更新了（lastEditedTime > lastSyncTime），同步
+      // 3. 如果页面已同步且未更新（lastEditedTime <= lastSyncTime），跳过
+      if (isSynced && lastEditedTime <= lastSyncTime) {
+        console.log(`⏭️  跳过未更新: ${title} (编辑时间: ${lastEditedTime.toLocaleString('zh-CN')}, 同步时间: ${lastSyncTime.toLocaleString('zh-CN')})`);
+        skippedCount++;
+        continue;
+      }
+      
+      // 如果是新文章或已更新的文章，继续处理
+      if (!isSynced) {
+        console.log(`🆕 发现新文章: ${title}`);
+      } else {
+        console.log(`🔄 发现更新: ${title} (编辑时间: ${lastEditedTime.toLocaleString('zh-CN')})`);
       }
       
       // 获取日期
