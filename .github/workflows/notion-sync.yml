@@ -16,12 +16,15 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
       
       - name: 设置 Node.js
         uses: actions/setup-node@v4
@@ -45,9 +48,11 @@ jobs:
       
       - name: 提交更改
         if: steps.check-changes.outputs.has_changes == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add app/data/articles/ .notion-sync-state.json
           git commit -m "🤖 自动同步 Notion 文章 [skip ci]"
-          git push
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:main
