@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
 
     // 过滤出属于该数据库的页面
     const pages = searchResponse.results.filter((page: any) => {
-      const parent = page.parent
+      const pageAny = page as any
+      const parent = pageAny.parent
       if (!parent) return false
       if (parent.type === 'database_id' && parent.database_id === DATABASE_ID) {
         return true
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
 
     // 返回第一个页面的详细信息
     if (pages.length > 0) {
-      const firstPage = pages[0]
+      const firstPage = pages[0] as any
       const properties = firstPage.properties || {}
       
       return NextResponse.json({

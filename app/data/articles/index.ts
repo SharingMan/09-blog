@@ -52,7 +52,7 @@ function parseMarkdownFile(filePath: string): Article | null {
       + (content.length > 100 ? '...' : '')
 
     // 提取封面图：优先使用 frontmatter 中的 coverImage，否则提取正文第一张图
-    let coverImage = metadata.coverImage
+    let coverImage: string | undefined = metadata.coverImage
     if (!coverImage && content) {
       // 匹配 Markdown 图片语法：![alt](url)
       // 使用全局匹配找到所有图片，取第一张
@@ -62,7 +62,7 @@ function parseMarkdownFile(filePath: string): Article | null {
       if (images.length > 0) {
         coverImage = images[0]
         // 过滤掉 base64 图片和无效的图片
-        if (coverImage.startsWith('data:') || coverImage.length < 5) {
+        if (coverImage && (coverImage.startsWith('data:') || coverImage.length < 5)) {
           coverImage = undefined
         }
       }

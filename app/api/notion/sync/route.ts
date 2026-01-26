@@ -64,41 +64,44 @@ async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Pro
   let markdown = ''
 
   for (const block of blocks.results) {
-    switch (block.type) {
+    const blockType = (block as any).type
+    if (!blockType) continue
+    
+    switch (blockType) {
       case 'paragraph':
-        const paragraphText = block.paragraph.rich_text.map(t => t.plain_text).join('')
+        const paragraphText = (block as any).paragraph.rich_text.map((t: any) => t.plain_text).join('')
         if (paragraphText.trim()) {
           markdown += paragraphText + '\n\n'
         }
         break
 
       case 'heading_1':
-        markdown += '# ' + block.heading_1.rich_text.map(t => t.plain_text).join('') + '\n\n'
+        markdown += '# ' + (block as any).heading_1.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
         break
 
       case 'heading_2':
-        markdown += '## ' + block.heading_2.rich_text.map(t => t.plain_text).join('') + '\n\n'
+        markdown += '## ' + (block as any).heading_2.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
         break
 
       case 'heading_3':
-        markdown += '### ' + block.heading_3.rich_text.map(t => t.plain_text).join('') + '\n\n'
+        markdown += '### ' + (block as any).heading_3.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
         break
 
       case 'bulleted_list_item':
-        markdown += '- ' + block.bulleted_list_item.rich_text.map(t => t.plain_text).join('') + '\n'
+        markdown += '- ' + (block as any).bulleted_list_item.rich_text.map((t: any) => t.plain_text).join('') + '\n'
         break
 
       case 'numbered_list_item':
-        markdown += '1. ' + block.numbered_list_item.rich_text.map(t => t.plain_text).join('') + '\n'
+        markdown += '1. ' + (block as any).numbered_list_item.rich_text.map((t: any) => t.plain_text).join('') + '\n'
         break
 
       case 'quote':
-        markdown += '> ' + block.quote.rich_text.map(t => t.plain_text).join('') + '\n\n'
+        markdown += '> ' + (block as any).quote.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
         break
 
       case 'code':
-        const language = block.code.language || ''
-        const codeText = block.code.rich_text.map(t => t.plain_text).join('')
+        const language = (block as any).code.language || ''
+        const codeText = (block as any).code.rich_text.map((t: any) => t.plain_text).join('')
         markdown += '```' + language + '\n' + codeText + '\n```\n\n'
         break
 
@@ -107,38 +110,43 @@ async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Pro
         break
 
       case 'image':
-        const imageUrl = block.image.type === 'external' 
-          ? block.image.external.url 
-          : block.image.file?.url || ''
-        const imageCaption = block.image.caption.map(t => t.plain_text).join('')
+        const imageBlock = (block as any).image
+        const imageUrl = imageBlock.type === 'external' 
+          ? imageBlock.external.url 
+          : imageBlock.file?.url || ''
+        const imageCaption = imageBlock.caption.map((t: any) => t.plain_text).join('')
         markdown += `![${imageCaption}](${imageUrl})\n\n`
         break
 
       case 'to_do':
-        const checked = block.to_do.checked ? 'x' : ' '
-        const todoText = block.to_do.rich_text.map(t => t.plain_text).join('')
+        const todoBlock = (block as any).to_do
+        const checked = todoBlock.checked ? 'x' : ' '
+        const todoText = todoBlock.rich_text.map((t: any) => t.plain_text).join('')
         markdown += `- [${checked}] ${todoText}\n`
         break
 
       case 'toggle':
-        markdown += '<details>\n<summary>' + block.toggle.rich_text.map(t => t.plain_text).join('') + '</summary>\n\n'
-        if (block.has_children) {
-          const childContent = await blocksToMarkdown(notion, block.id, depth + 1)
+        const toggleBlock = (block as any).toggle
+        markdown += '<details>\n<summary>' + toggleBlock.rich_text.map((t: any) => t.plain_text).join('') + '</summary>\n\n'
+        if ((block as any).has_children) {
+          const childContent = await blocksToMarkdown(notion, (block as any).id, depth + 1)
           markdown += childContent
         }
         markdown += '\n</details>\n\n'
         break
 
       case 'callout':
-        const calloutIcon = block.callout.icon?.emoji || '💡'
-        const calloutText = block.callout.rich_text.map(t => t.plain_text).join('')
+        const calloutBlock = (block as any).callout
+        const calloutIcon = calloutBlock.icon?.emoji || '💡'
+        const calloutText = calloutBlock.rich_text.map((t: any) => t.plain_text).join('')
         markdown += `> ${calloutIcon} ${calloutText}\n\n`
         break
 
       default:
         // 处理有子块的类型
-        if (block.has_children && 'id' in block) {
-          const childContent = await blocksToMarkdown(notion, block.id, depth + 1)
+        const blockAny = block as any
+        if (blockAny.has_children && 'id' in blockAny) {
+          const childContent = await blocksToMarkdown(notion, blockAny.id, depth + 1)
           if (childContent) {
             markdown += childContent
           }
@@ -248,7 +256,7 @@ async function syncNotionArticles(force = false) {
       
       // 过滤出属于该数据库的页面
       const pages = searchResponse.results.filter((page: any) => {
-        const parent = page.parent
+        const parent = (page as any).parent
         if (!parent) return false
         
         // 检查 parent 是否为数据库
@@ -268,7 +276,8 @@ async function syncNotionArticles(force = false) {
       if (pages.length === 0 && searchResponse.results.length > 0) {
         console.log('搜索到的页面数:', searchResponse.results.length)
         console.log('数据库 ID:', DATABASE_ID)
-        console.log('第一个页面的 parent:', JSON.stringify(searchResponse.results[0]?.parent, null, 2))
+        const firstPage = searchResponse.results[0] as any
+        console.log('第一个页面的 parent:', JSON.stringify(firstPage?.parent, null, 2))
       }
       
       response = { results: pages }
@@ -285,8 +294,9 @@ async function syncNotionArticles(force = false) {
   for (const page of pages) {
     try {
       // 检查是否已同步
-      const pageId = page.id
-      const lastEditedTime = new Date(page.last_edited_time)
+      const pageAny = page as any
+      const pageId = pageAny.id
+      const lastEditedTime = new Date(pageAny.last_edited_time)
 
       // 如果不是强制同步，且页面未更新，且已同步过，则跳过
       if (!force && lastEditedTime <= lastSyncTime && syncState.syncedPages[pageId]) {
@@ -296,7 +306,7 @@ async function syncNotionArticles(force = false) {
       }
 
       // 获取页面属性
-      const properties = page.properties || {}
+      const properties = pageAny.properties || {}
       
       // 尝试多种方式获取标题（支持中英文）
       let title = '未命名'
@@ -310,7 +320,7 @@ async function syncNotionArticles(force = false) {
       }
       
       // 尝试多种方式获取日期（支持中英文）
-      let dateProperty = page.created_time
+      let dateProperty = pageAny.created_time
       const dateKeys = ['发布日期', 'Date', 'date', '發布日期', '创建时间', 'created_time']
       for (const key of dateKeys) {
         const prop = properties[key]
@@ -389,7 +399,8 @@ async function syncNotionArticles(force = false) {
         syncedCount++
       }
     } catch (error) {
-      console.error(`处理页面失败 (${page.id}):`, error)
+      const pageAny = page as any
+      console.error(`处理页面失败 (${pageAny.id}):`, error)
     }
   }
 
@@ -415,7 +426,6 @@ export async function GET(request: NextRequest) {
     const result = await syncNotionArticles(force)
 
     return NextResponse.json({
-      success: true,
       message: '同步完成',
       ...result,
     })
@@ -442,7 +452,6 @@ export async function POST(request: NextRequest) {
     const result = await syncNotionArticles(false)
 
     return NextResponse.json({
-      success: true,
       message: '同步完成',
       ...result,
     })

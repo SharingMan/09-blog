@@ -14,23 +14,27 @@ async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Pro
   const blocks = await notion.blocks.children.list({ block_id: blockId, page_size: 100 })
   let markdown = ''
   for (const block of blocks.results) {
-    switch (block.type) {
+    const blockAny = block as any
+    const blockType = blockAny.type
+    if (!blockType) continue
+    
+    switch (blockType) {
       case 'paragraph':
-        const paragraphText = block.paragraph.rich_text.map((t: any) => t.plain_text).join('')
+        const paragraphText = blockAny.paragraph.rich_text.map((t: any) => t.plain_text).join('')
         if (paragraphText.trim()) markdown += paragraphText + '\n\n'
         break
       case 'heading_1':
-        markdown += '# ' + block.heading_1.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
+        markdown += '# ' + blockAny.heading_1.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
         break
       case 'heading_2':
-        markdown += '## ' + block.heading_2.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
+        markdown += '## ' + blockAny.heading_2.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
         break
       case 'heading_3':
-        markdown += '### ' + block.heading_3.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
+        markdown += '### ' + blockAny.heading_3.rich_text.map((t: any) => t.plain_text).join('') + '\n\n'
         break
       default:
-        if (block.has_children && 'id' in block) {
-          const childContent = await blocksToMarkdown(notion, block.id, depth + 1)
+        if (blockAny.has_children && 'id' in blockAny) {
+          const childContent = await blocksToMarkdown(notion, blockAny.id, depth + 1)
           if (childContent) markdown += childContent
         }
         break
@@ -50,13 +54,14 @@ export async function GET() {
     const notion = new Client({ auth: NOTION_TOKEN })
     const searchResponse = await notion.search({ filter: { property: 'object', value: 'page' } })
     const pages = searchResponse.results.filter((page: any) => {
-      const parent = page.parent
+      const pageAny = page as any
+      const parent = pageAny.parent
       return parent?.database_id === DATABASE_ID || (parent?.type === 'database_id' && parent.database_id === DATABASE_ID)
     })
     if (pages.length === 0) {
       return NextResponse.json({ error: '未找到页面' })
     }
-    const firstPage = pages[0]
+    const firstPage = pages[0] as any
     const properties = firstPage.properties || {}
     const titleProp = properties['标题'] || properties['Title'] || properties['title']
     const title = titleProp?.title?.[0]?.plain_text || '未命名'
@@ -106,7 +111,7 @@ export async function GET() {
       success: true,
       title,
       pageId: firstPage.id,
-      pageUrl: pageDetails.url,
+      pageUrl: (pageDetails as any).url,
       blocksCount: blocks.results.length,
       blockTypes: blocks.results.map((b: any) => b.type),
       contentLength: content.length,

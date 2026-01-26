@@ -24,7 +24,7 @@ export async function GET() {
     const notion = new Client({ auth: NOTION_TOKEN })
 
     // 1. 检查数据库是否存在
-    let database
+    let database: any
     try {
       database = await notion.databases.retrieve({
         database_id: DATABASE_ID,
@@ -38,7 +38,9 @@ export async function GET() {
     }
 
     // 2. 检查数据库属性
-    const properties = database.properties || {}
+    // 使用类型断言处理 Notion API 返回的类型
+    const dbWithProperties = database as { properties?: Record<string, any> }
+    const properties = dbWithProperties.properties || {}
     const propertyKeys = Object.keys(properties)
     
     // 检查必需的字段
@@ -81,10 +83,11 @@ export async function GET() {
           block_id: firstPage.id,
           page_size: 10,
         })
+        const pageProperties = (firstPage as any).properties || {}
         firstPageContent = {
           pageId: firstPage.id,
-          title: (firstPage.properties as any)['标题']?.title?.[0]?.plain_text || 
-                 (firstPage.properties as any)['Title']?.title?.[0]?.plain_text || 
+          title: pageProperties['标题']?.title?.[0]?.plain_text || 
+                 pageProperties['Title']?.title?.[0]?.plain_text || 
                  '未命名',
           blocksCount: blocks.results.length,
           hasContent: blocks.results.length > 0,
@@ -101,9 +104,9 @@ export async function GET() {
       success: true,
       database: {
         id: database.id,
-        title: database.title?.[0]?.plain_text || '未命名',
-        url: database.url,
-        archived: database.archived,
+        title: (database as any).title?.[0]?.plain_text || '未命名',
+        url: (database as any).url,
+        archived: (database as any).archived,
       },
       properties: {
         all: propertyKeys,

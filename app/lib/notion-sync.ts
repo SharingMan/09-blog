@@ -102,15 +102,18 @@ export class NotionSync {
 
     for (const block of blocks.results) {
       const prefix = '  '.repeat(indent)
+      const blockAny = block as any
+      const blockType = blockAny.type
+      if (!blockType) continue
 
-      switch (block.type) {
+      switch (blockType) {
         case 'paragraph':
           if (inList) {
             inList = false
             listCounter = 1
           }
-          const paragraphText = block.paragraph.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const paragraphText = blockAny.paragraph.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += paragraphText ? `${prefix}${paragraphText}\n\n` : '\n'
           break
@@ -120,8 +123,8 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const h1Text = block.heading_1.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const h1Text = blockAny.heading_1.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += `${prefix}# ${h1Text}\n\n`
           break
@@ -131,8 +134,8 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const h2Text = block.heading_2.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const h2Text = blockAny.heading_2.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += `${prefix}## ${h2Text}\n\n`
           break
@@ -142,8 +145,8 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const h3Text = block.heading_3.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const h3Text = blockAny.heading_3.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += `${prefix}### ${h3Text}\n\n`
           break
@@ -152,8 +155,8 @@ export class NotionSync {
           if (!inList) {
             inList = true
           }
-          const bulletText = block.bulleted_list_item.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const bulletText = blockAny.bulleted_list_item.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += `${prefix}- ${bulletText}\n`
           break
@@ -163,8 +166,8 @@ export class NotionSync {
             inList = true
             listCounter = 1
           }
-          const numberedText = block.numbered_list_item.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const numberedText = blockAny.numbered_list_item.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += `${prefix}${listCounter}. ${numberedText}\n`
           listCounter++
@@ -175,8 +178,8 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const quoteText = block.quote.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const quoteText = blockAny.quote.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += `${prefix}> ${quoteText}\n\n`
           break
@@ -186,8 +189,8 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const codeText = block.code.rich_text.map(t => t.plain_text).join('')
-          const language = block.code.language || ''
+          const codeText = blockAny.code.rich_text.map((t: any) => t.plain_text).join('')
+          const language = blockAny.code.language || ''
           markdown += `${prefix}\`\`\`${language}\n${codeText}\n\`\`\`\n\n`
           break
 
@@ -204,11 +207,12 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const imageUrl = block.image.type === 'external' 
-            ? block.image.external.url 
-            : block.image.file?.url || ''
-          const imageCaption = block.image.caption
-            .map(t => t.plain_text)
+          const imageBlock = blockAny.image
+          const imageUrl = imageBlock.type === 'external' 
+            ? imageBlock.external.url 
+            : imageBlock.file?.url || ''
+          const imageCaption = imageBlock.caption
+            .map((t: any) => t.plain_text)
             .join('')
           markdown += `${prefix}!${imageCaption ? `[${imageCaption}]` : ''}(${imageUrl})\n\n`
           break
@@ -218,11 +222,11 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const calloutText = block.callout.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const calloutText = blockAny.callout.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
-          const emoji = block.callout.icon?.type === 'emoji' 
-            ? block.callout.icon.emoji 
+          const emoji = blockAny.callout.icon?.type === 'emoji' 
+            ? blockAny.callout.icon.emoji 
             : '💡'
           markdown += `${prefix}> ${emoji} ${calloutText}\n\n`
           break
@@ -232,13 +236,13 @@ export class NotionSync {
             inList = false
             listCounter = 1
           }
-          const toggleText = block.toggle.rich_text
-            .map(t => this.richTextToMarkdown(t))
+          const toggleText = blockAny.toggle.rich_text
+            .map((t: any) => this.richTextToMarkdown(t))
             .join('')
           markdown += `${prefix}<details>\n${prefix}<summary>${toggleText}</summary>\n\n`
           // 递归处理子块
-          if (block.has_children) {
-            const childMarkdown = await this.blocksToMarkdown(block.id, indent + 1)
+          if (blockAny.has_children) {
+            const childMarkdown = await this.blocksToMarkdown(blockAny.id, indent + 1)
             markdown += childMarkdown
           }
           markdown += `${prefix}</details>\n\n`
@@ -246,8 +250,8 @@ export class NotionSync {
 
         default:
           // 处理有子块的块（递归）
-          if ('has_children' in block && block.has_children) {
-            const childMarkdown = await this.blocksToMarkdown(block.id, indent + 1)
+          if (blockAny.has_children && 'id' in blockAny) {
+            const childMarkdown = await this.blocksToMarkdown(blockAny.id, indent + 1)
             markdown += childMarkdown
           }
           break
@@ -299,14 +303,15 @@ export class NotionSync {
       const page = await this.notion.pages.retrieve({ page_id: pageId })
 
       // 获取页面属性
-      const properties = page.properties as any
+      const pageAny = page as any
+      const properties = pageAny.properties || {}
       const title = properties.Title?.title?.[0]?.plain_text ||
                    properties.Name?.title?.[0]?.plain_text ||
                    '未命名'
 
       const date = properties.Date?.date?.start ||
                   properties['创建时间']?.created_time ||
-                  page.created_time
+                  pageAny.created_time
 
       const category = properties.Category?.select?.name ||
                       properties['分类']?.select?.name
@@ -325,7 +330,7 @@ export class NotionSync {
         content,
         category,
         tags: tags.length > 0 ? tags : undefined,
-        lastEditedTime: page.last_edited_time,
+        lastEditedTime: pageAny.last_edited_time,
       }
     } catch (error) {
       console.error(`获取 Notion 页面失败 (${pageId}):`, error)
@@ -368,7 +373,7 @@ export class NotionSync {
         }
       }
 
-      const response = await this.notion.databases.query(query)
+      const response = await (this.notion.databases as any).query(query)
       return response.results
     } catch (error) {
       console.error('获取 Notion 数据库失败:', error)
