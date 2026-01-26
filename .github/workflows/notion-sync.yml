@@ -53,6 +53,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          # 先拉取最新更改，避免冲突
+          git pull --rebase origin main || true
           git add app/data/articles/ .notion-sync-state.json
           git commit -m "🤖 自动同步 Notion 文章 [skip ci]"
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:main

@@ -179,20 +179,43 @@ async function main() {
   const syncState = readSyncState();
   
   // 查询数据库
+  console.log(`🔍 正在搜索 Notion 数据库: ${formattedDbId}\n`);
   const searchResponse = await notion.search({
     filter: { property: 'object', value: 'page' },
     sort: { direction: 'descending', timestamp: 'last_edited_time' }
   });
   
+  console.log(`📋 搜索到 ${searchResponse.results.length} 个页面（未过滤）\n`);
+  
+  // 添加调试信息
+  if (searchResponse.results.length > 0) {
+    const firstPage = searchResponse.results[0];
+    console.log(`🔍 第一个页面的 parent 信息:`, JSON.stringify({
+      type: firstPage.parent?.type,
+      database_id: firstPage.parent?.database_id,
+      target_db_id: formattedDbId,
+      match: firstPage.parent?.database_id === formattedDbId
+    }, null, 2));
+    console.log('');
+  }
+  
   const pages = searchResponse.results.filter((page) => {
     const parent = page.parent;
-    if (!parent) return false;
-    if (parent.type === 'database_id' && parent.database_id === formattedDbId) return true;
-    if (parent.database_id === formattedDbId) return true;
+    if (!parent) {
+      return false;
+    }
+    // 检查 parent 是否为数据库类型
+    if (parent.type === 'database_id' && parent.database_id === formattedDbId) {
+      return true;
+    }
+    // 检查 parent 对象中是否有 database_id 字段
+    if (parent.database_id === formattedDbId) {
+      return true;
+    }
     return false;
   });
   
-  console.log(`📚 找到 ${pages.length} 个页面\n`);
+  console.log(`📚 过滤后找到 ${pages.length} 个页面（属于数据库 ${formattedDbId}）\n`);
   
   // 获取最后同步时间
   const lastSyncTime = syncState.lastSyncTime ? new Date(syncState.lastSyncTime) : new Date(0);
@@ -303,7 +326,7 @@ async function main() {
     }
   }
   
-  // 保存同步状态
+  // 保存同步状态（即使没有同步任何文章，也更新同步时间）
   syncState.lastSyncTime = new Date().toISOString();
   saveSyncState(syncState);
   
@@ -311,7 +334,17 @@ async function main() {
   console.log(`   - 新增: ${syncedCount} 篇`);
   console.log(`   - 更新: ${updatedCount} 篇`);
   console.log(`   - 跳过: ${skippedCount} 篇`);
-  console.log(`   - 总计: ${pages.length} 篇\n`);
+  console.log(`   - 总计: ${pages.length} 篇`);
+  
+  if (pages.length === 0) {
+    console.log(`\n⚠️  警告: 没有找到任何页面！`);
+    console.log(`   请检查:`);
+    console.log(`   1. 数据库 ID 是否正确: ${formattedDbId}`);
+    console.log(`   2. Integration 是否有权限访问该数据库`);
+    console.log(`   3. 数据库中是否有页面`);
+  }
+  
+  console.log('');
 }
 
 main().catch(error => {
