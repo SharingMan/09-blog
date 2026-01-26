@@ -3,6 +3,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useEffect } from 'react'
+import ImagePreview from './ImagePreview'
 import './MarkdownContent.css'
 
 interface MarkdownContentProps {
@@ -78,13 +79,17 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           tr: ({ node, ...props }: any) => <tr {...props} />,
           th: ({ node, ...props }: any) => <th {...props} />,
           td: ({ node, ...props }: any) => <td {...props} />,
-          img: ({ node, ...props }: any) => (
-            <img
-              loading="lazy"
-              decoding="async"
-              {...props}
-              style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '2em auto' }}
-            />
+          img: ({ node, src, alt, ...props }: any) => (
+            <ImagePreview src={src || ''} alt={alt}>
+              <img
+                loading="lazy"
+                decoding="async"
+                src={src}
+                alt={alt}
+                {...props}
+                style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '2em auto' }}
+              />
+            </ImagePreview>
           ),
         }}
       >

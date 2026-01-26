@@ -33,30 +33,44 @@
 }
 
 .article-item:hover .article-card {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  /* Soft shadow on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+  border-color: rgba(217, 48, 37, 0.2);
 }
 
 /* Cover Image */
 .article-cover {
   width: 100%;
   aspect-ratio: 16/9;
-  /* Standard cinematic ratio */
   overflow: hidden;
   background-color: var(--hover-overlay);
   position: relative;
+  display: block; /* 确保显示 */
 }
 
-.article-cover img {
+.article-cover .image-preview-wrapper {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+}
+
+.article-cover .image-preview-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: block; /* 确保显示 */
 }
 
-.article-card:hover .article-cover img {
-  transform: scale(1.05);
+.article-cover .image-preview-hint {
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.7rem;
+  padding: 0.4rem 0.6rem;
 }
 
 .article-content {
@@ -78,8 +92,7 @@
 .article-category {
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  color: #d93025;
-  /* SSPai-like red accent or standard accent */
+  color: var(--accent-color);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -104,8 +117,8 @@
 }
 
 .article-card:hover .article-title {
-  color: #d93025;
-  /* Hover accent color */
+  color: var(--accent-color);
+  transition: color 0.2s ease;
 }
 
 /* Excerpt */
@@ -169,10 +182,9 @@
   }
 
   .article-card {
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: none;
-    /* Cleaner look on mobile */
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
   }
 
   .article-cover {

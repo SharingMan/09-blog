@@ -1,0 +1,53 @@
+name: Notion 自动同步
+
+on:
+  # 定时触发：每天 UTC 时间 2:00（北京时间 10:00）执行
+  schedule:
+    - cron: '0 2 * * *'
+  # 手动触发
+  workflow_dispatch:
+  # 推送代码时触发（可选）
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/notion-sync.yml'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 安装依赖
+        run: npm ci
+      
+      - name: 运行同步脚本
+        run: node scripts/github-actions-sync.js
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+      
+      - name: 检查更改
+        id: check-changes
+        run: |
+          git diff --exit-code app/data/articles/ .notion-sync-state.json || echo "has_changes=true" >> $GITHUB_OUTPUT
+      
+      - name: 提交更改
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add app/data/articles/ .notion-sync-state.json
+          git commit -m "🤖 自动同步 Notion 文章 [skip ci]"
+          git push

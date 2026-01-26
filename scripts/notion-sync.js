@@ -123,18 +123,31 @@ async function fetchNotionDatabase() {
   const notion = new Client({ auth: CONFIG.NOTION_TOKEN });
 
   try {
-    const response = await notion.databases.query({
-      database_id: CONFIG.DATABASE_ID,
-      // 可以添加筛选和排序
-      sorts: [
-        {
-          property: 'Date', // 假设日期字段名为 Date
-          direction: 'descending',
-        },
-      ],
+    // 格式化数据库 ID（添加连字符）
+    let databaseId = CONFIG.DATABASE_ID;
+    if (!databaseId.includes('-') && databaseId.length === 32) {
+      databaseId = `${databaseId.slice(0, 8)}-${databaseId.slice(8, 12)}-${databaseId.slice(12, 16)}-${databaseId.slice(16, 20)}-${databaseId.slice(20, 32)}`;
+    }
+
+    // 使用 search API 查询所有页面，然后过滤
+    const searchResponse = await notion.search({
+      filter: {
+        property: 'object',
+        value: 'page',
+      },
+      sort: {
+        direction: 'descending',
+        timestamp: 'last_edited_time',
+      },
     });
 
-    return response.results;
+    // 过滤出属于该数据库的页面
+    const pages = searchResponse.results.filter((page) => {
+      const parent = page.parent;
+      return parent?.type === 'database_id' && parent.database_id === databaseId;
+    });
+
+    return pages;
   } catch (error) {
     console.error('获取 Notion 数据库失败:', error);
     throw error;

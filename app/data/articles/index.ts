@@ -53,10 +53,18 @@ function parseMarkdownFile(filePath: string): Article | null {
 
     // 提取封面图：优先使用 frontmatter 中的 coverImage，否则提取正文第一张图
     let coverImage = metadata.coverImage
-    if (!coverImage) {
-      const imageMatch = content.match(/!\[.*?\]\((.*?)\)/)
-      if (imageMatch) {
-        coverImage = imageMatch[1]
+    if (!coverImage && content) {
+      // 匹配 Markdown 图片语法：![alt](url)
+      // 使用全局匹配找到所有图片，取第一张
+      const imageMatches = content.matchAll(/!\[.*?\]\((.*?)\)/g)
+      const images = Array.from(imageMatches).map(m => m[1]?.trim()).filter(Boolean)
+      
+      if (images.length > 0) {
+        coverImage = images[0]
+        // 过滤掉 base64 图片和无效的图片
+        if (coverImage.startsWith('data:') || coverImage.length < 5) {
+          coverImage = undefined
+        }
       }
     }
 

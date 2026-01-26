@@ -64,6 +64,33 @@ export default function Navbar({ articles = [] }: NavbarProps) {
     localStorage.setItem('theme', newTheme)
   }
 
+  // 只在客户端渲染导航链接，避免 hydration 错误
+  if (!mounted) {
+    return (
+      <nav className="navbar" suppressHydrationWarning>
+        <div className="navbar-container">
+          <Link href="/" className="navbar-logo">
+            新海说
+          </Link>
+          <div className="navbar-links">
+            <Link href="/">首页</Link>
+            <Link href="/posts">文章</Link>
+            <Link href="/archive">分类</Link>
+            <Link href="/works">作品</Link>
+            <Link href="/about">关于</Link>
+            <button 
+              className="theme-toggle"
+              aria-label="切换主题"
+              suppressHydrationWarning
+            >
+              🌙
+            </button>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} suppressHydrationWarning>
       <div className="navbar-container">
@@ -76,7 +103,6 @@ export default function Navbar({ articles = [] }: NavbarProps) {
           <Link href="/archive">分类</Link>
           <Link href="/works">作品</Link>
           <Link href="/about">关于</Link>
-          <Link href="/admin/write">写文章</Link>
           {clientArticles.length > 0 && <SearchBar articles={clientArticles} />}
           <button 
             className="theme-toggle"
@@ -84,7 +110,7 @@ export default function Navbar({ articles = [] }: NavbarProps) {
             aria-label="切换主题"
             suppressHydrationWarning
           >
-            {mounted ? (theme === 'light' ? '🌙' : '☀️') : '🌙'}
+            {theme === 'light' ? '🌙' : '☀️'}
           </button>
         </div>
       </div>

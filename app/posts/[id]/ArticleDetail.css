@@ -56,18 +56,19 @@
 .article-category-link {
   font-family: var(--font-sans);
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: var(--accent-color);
   text-decoration: none;
   padding: 0.3em 0.8em;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--accent-color);
   border-radius: 3px;
   transition: all 0.2s ease;
   display: inline-block;
+  font-weight: 500;
 }
 
 .article-category-link:hover {
-  color: var(--text-primary);
-  border-color: var(--text-tertiary);
+  color: var(--bg-secondary);
+  background-color: var(--accent-color);
   opacity: 1;
 }
 

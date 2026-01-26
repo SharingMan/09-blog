@@ -1,12 +1,16 @@
 :root {
-  /* Light Mode Colors */
-  --bg-primary: #faf9f6;
+  /* Light Mode Colors - 少数派风格 */
+  --bg-primary: #f5f5f5;
   --bg-secondary: #ffffff;
   --text-primary: #1a1a1a;
   --text-secondary: #666666;
   --text-tertiary: #999999;
   --border-color: rgba(0, 0, 0, 0.08);
   --hover-overlay: rgba(0, 0, 0, 0.02);
+  
+  /* 少数派强调色 */
+  --accent-color: #d93025;
+  --accent-hover: #c5221f;
 
   /* Typography */
   --font-serif-en: var(--font-playfair), var(--font-newsreader), 'Georgia', serif;
@@ -39,6 +43,8 @@
   --text-tertiary: #808080;
   --border-color: rgba(255, 255, 255, 0.1);
   --hover-overlay: rgba(255, 255, 255, 0.05);
+  --accent-color: #ff6b6b;
+  --accent-hover: #ff5252;
 }
 
 * {
