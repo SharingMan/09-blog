@@ -56,14 +56,19 @@ function calculateReadTime(content: string): string {
 async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Promise<string> {
   if (depth > 10) return '' // 防止无限递归
 
-  const blocks = await notion.blocks.children.list({
-    block_id: blockId,
-    page_size: 100,
-  })
-
   let markdown = ''
+  let hasMore = true
+  let startCursor: string | undefined = undefined
 
-  for (const block of blocks.results) {
+  // 处理分页，确保获取所有块
+  while (hasMore) {
+    const blocks = await notion.blocks.children.list({
+      block_id: blockId,
+      page_size: 100,
+      start_cursor: startCursor,
+    })
+
+    for (const block of blocks.results) {
     const blockType = (block as any).type
     if (!blockType) continue
     
@@ -88,11 +93,31 @@ async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Pro
         break
 
       case 'bulleted_list_item':
-        markdown += '- ' + (block as any).bulleted_list_item.rich_text.map((t: any) => t.plain_text).join('') + '\n'
+        const bulletedText = (block as any).bulleted_list_item.rich_text.map((t: any) => t.plain_text).join('')
+        if (bulletedText.trim()) {
+          markdown += '- ' + bulletedText + '\n'
+        }
+        // 处理嵌套列表
+        if ((block as any).has_children) {
+          const childContent = await blocksToMarkdown(notion, (block as any).id, depth + 1)
+          if (childContent) {
+            markdown += childContent.replace(/^/gm, '  ') // 添加缩进
+          }
+        }
         break
 
       case 'numbered_list_item':
-        markdown += '1. ' + (block as any).numbered_list_item.rich_text.map((t: any) => t.plain_text).join('') + '\n'
+        const numberedText = (block as any).numbered_list_item.rich_text.map((t: any) => t.plain_text).join('')
+        if (numberedText.trim()) {
+          markdown += '1. ' + numberedText + '\n'
+        }
+        // 处理嵌套列表
+        if ((block as any).has_children) {
+          const childContent = await blocksToMarkdown(notion, (block as any).id, depth + 1)
+          if (childContent) {
+            markdown += childContent.replace(/^/gm, '  ') // 添加缩进
+          }
+        }
         break
 
       case 'quote':
@@ -111,11 +136,19 @@ async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Pro
 
       case 'image':
         const imageBlock = (block as any).image
-        const imageUrl = imageBlock.type === 'external' 
-          ? imageBlock.external.url 
-          : imageBlock.file?.url || ''
-        const imageCaption = imageBlock.caption.map((t: any) => t.plain_text).join('')
-        markdown += `![${imageCaption}](${imageUrl})\n\n`
+        let imageUrl = ''
+        if (imageBlock.type === 'external') {
+          imageUrl = imageBlock.external.url || ''
+        } else if (imageBlock.type === 'file') {
+          imageUrl = imageBlock.file?.url || ''
+        } else {
+          // 兼容旧版本 API
+          imageUrl = imageBlock.file?.url || imageBlock.external?.url || ''
+        }
+        const imageCaption = (imageBlock.caption || []).map((t: any) => t.plain_text).join('')
+        if (imageUrl) {
+          markdown += `![${imageCaption}](${imageUrl})\n\n`
+        }
         break
 
       case 'to_do':
@@ -140,6 +173,35 @@ async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Pro
         const calloutIcon = calloutBlock.icon?.emoji || '💡'
         const calloutText = calloutBlock.rich_text.map((t: any) => t.plain_text).join('')
         markdown += `> ${calloutIcon} ${calloutText}\n\n`
+        // 处理 callout 的子内容
+        if ((block as any).has_children) {
+          const childContent = await blocksToMarkdown(notion, (block as any).id, depth + 1)
+          if (childContent) {
+            markdown += childContent.split('\n').map(line => '> ' + line).join('\n') + '\n\n'
+          }
+        }
+        break
+
+      case 'table':
+        // 处理表格
+        const tableBlock = (block as any).table
+        if (tableBlock && (block as any).has_children) {
+          const tableRows = await blocksToMarkdown(notion, (block as any).id, depth + 1)
+          if (tableRows) {
+            markdown += tableRows + '\n\n'
+          }
+        }
+        break
+
+      case 'table_row':
+        // 处理表格行
+        const tableRow = (block as any).table_row
+        if (tableRow && tableRow.cells) {
+          const cells = tableRow.cells.map((cell: any[]) => 
+            cell.map((t: any) => t.plain_text).join('')
+          ).join(' | ')
+          markdown += `| ${cells} |\n`
+        }
         break
 
       default:
@@ -153,6 +215,11 @@ async function blocksToMarkdown(notion: Client, blockId: string, depth = 0): Pro
         }
         break
     }
+    }
+
+    // 检查是否有更多块需要获取
+    hasMore = blocks.has_more || false
+    startCursor = blocks.next_cursor || undefined
   }
 
   return markdown.trim()

@@ -195,11 +195,11 @@
   .article-content {
     padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
   }
-
+  
   .article-title {
     font-size: 1.25rem;
   }
-
+  
   .article-excerpt {
     font-size: 0.9rem;
     -webkit-line-clamp: 3;
@@ -221,11 +221,11 @@
     /* Fixed height for consistency */
     aspect-ratio: auto;
   }
-
+  
   .article-content {
     padding: 1rem;
   }
-
+  
   .article-footer {
     padding-top: 0.5rem;
     margin-top: 0.5rem;

@@ -95,11 +95,31 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
         break;
       
       case 'bulleted_list_item':
-        markdown += '- ' + block.bulleted_list_item.rich_text.map(t => t.plain_text).join('') + '\n';
+        const bulletedText = block.bulleted_list_item.rich_text.map(t => t.plain_text).join('');
+        if (bulletedText.trim()) {
+          markdown += '- ' + bulletedText + '\n';
+        }
+        // 处理嵌套列表
+        if (block.has_children && block.id) {
+          const childContent = await blocksToMarkdown(notion, block.id, depth + 1);
+          if (childContent) {
+            markdown += childContent.replace(/^/gm, '  '); // 添加缩进
+          }
+        }
         break;
       
       case 'numbered_list_item':
-        markdown += '1. ' + block.numbered_list_item.rich_text.map(t => t.plain_text).join('') + '\n';
+        const numberedText = block.numbered_list_item.rich_text.map(t => t.plain_text).join('');
+        if (numberedText.trim()) {
+          markdown += '1. ' + numberedText + '\n';
+        }
+        // 处理嵌套列表
+        if (block.has_children && block.id) {
+          const childContent = await blocksToMarkdown(notion, block.id, depth + 1);
+          if (childContent) {
+            markdown += childContent.replace(/^/gm, '  '); // 添加缩进
+          }
+        }
         break;
       
       case 'quote':
@@ -116,6 +136,42 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
         markdown += '---\n\n';
         break;
       
+      case 'image':
+        let imageUrl = '';
+        if (block.image.type === 'external') {
+          imageUrl = block.image.external.url || '';
+        } else if (block.image.type === 'file') {
+          imageUrl = block.image.file?.url || '';
+        } else {
+          // 兼容旧版本 API
+          imageUrl = block.image.file?.url || block.image.external?.url || '';
+        }
+        const imageCaption = (block.image.caption || []).map(t => t.plain_text).join('');
+        if (imageUrl) {
+          markdown += `![${imageCaption}](${imageUrl})\n\n`;
+        }
+        break;
+      
+      case 'table':
+        // 处理表格
+        if (block.has_children && block.id) {
+          const tableRows = await blocksToMarkdown(notion, block.id, depth + 1);
+          if (tableRows) {
+            markdown += tableRows + '\n\n';
+          }
+        }
+        break;
+
+      case 'table_row':
+        // 处理表格行
+        if (block.table_row && block.table_row.cells) {
+          const cells = block.table_row.cells.map(cell => 
+            cell.map(t => t.plain_text).join('')
+          ).join(' | ');
+          markdown += `| ${cells} |\n`;
+        }
+        break;
+
       default:
         if (block.has_children && block.id) {
           const childContent = await blocksToMarkdown(notion, block.id, depth + 1);
@@ -247,8 +303,10 @@ async function main() {
       // 1. 如果页面未同步（新文章），总是同步
       // 2. 如果页面已同步但更新了（lastEditedTime > lastSyncTime），同步
       // 3. 如果页面已同步且未更新（lastEditedTime <= lastSyncTime），跳过
-      if (isSynced && lastEditedTime <= lastSyncTime) {
-        console.log(`⏭️  跳过未更新: ${title} (编辑时间: ${lastEditedTime.toLocaleString('zh-CN')}, 同步时间: ${lastSyncTime.toLocaleString('zh-CN')})`);
+      // 注意：使用严格比较，确保时间比较准确
+      const timeDiff = lastEditedTime.getTime() - lastSyncTime.getTime();
+      if (isSynced && timeDiff <= 0) {
+        console.log(`⏭️  跳过未更新: ${title} (编辑时间: ${lastEditedTime.toLocaleString('zh-CN')}, 同步时间: ${lastSyncTime.toLocaleString('zh-CN')}, 时间差: ${timeDiff}ms)`);
         skippedCount++;
         continue;
       }
@@ -327,8 +385,14 @@ async function main() {
   }
   
   // 保存同步状态（即使没有同步任何文章，也更新同步时间）
-  syncState.lastSyncTime = new Date().toISOString();
-  saveSyncState(syncState);
+  // 只有在实际同步了文章时才更新同步时间，避免跳过所有文章
+  if (syncedCount > 0 || updatedCount > 0) {
+    syncState.lastSyncTime = new Date().toISOString();
+    saveSyncState(syncState);
+    console.log(`💾 已更新同步状态，最后同步时间: ${syncState.lastSyncTime}`);
+  } else {
+    console.log(`ℹ️  没有新文章或更新，保持原有同步时间: ${syncState.lastSyncTime}`);
+  }
   
   console.log(`\n📊 同步完成:`);
   console.log(`   - 新增: ${syncedCount} 篇`);

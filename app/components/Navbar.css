@@ -107,7 +107,7 @@
     font-size: 1.1rem;
     margin-right: auto; /* Push links to right */
   }
-
+  
   .navbar-links {
     gap: var(--spacing-xs);
     flex-wrap: nowrap;
@@ -118,7 +118,7 @@
     padding: 0.25rem 0.4rem;
     color: var(--text-secondary);
   }
-
+  
   /* Hide specific links on mobile to save space */
   .navbar-links a[href="/works"], 
   .navbar-links a[href="/about"],
@@ -141,7 +141,7 @@
   .navbar-logo {
     font-size: 1rem;
   }
-
+  
   .navbar-links a {
     font-size: 0.85rem;
     padding: 0.25rem 0.35rem;

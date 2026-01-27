@@ -34,4 +34,3 @@ next-env.d.ts
 
 # notion sync state (需要在 GitHub Actions 中提交，所以不忽略)
 # .notion-sync-state.json
-

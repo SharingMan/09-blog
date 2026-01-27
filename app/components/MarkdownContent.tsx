@@ -3,7 +3,6 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useEffect } from 'react'
-import ImagePreview from './ImagePreview'
 import './MarkdownContent.css'
 
 interface MarkdownContentProps {
@@ -79,18 +78,29 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           tr: ({ node, ...props }: any) => <tr {...props} />,
           th: ({ node, ...props }: any) => <th {...props} />,
           td: ({ node, ...props }: any) => <td {...props} />,
-          img: ({ node, src, alt, ...props }: any) => (
-            <ImagePreview src={src || ''} alt={alt}>
+          img: ({ node, src, alt, ...props }: any) => {
+            // 处理图片 URL：如果是相对路径，确保正确
+            let imageSrc = src || ''
+            if (imageSrc && !imageSrc.startsWith('http://') && !imageSrc.startsWith('https://') && !imageSrc.startsWith('/')) {
+              // 如果是相对路径但没有 / 开头，添加 /
+              imageSrc = '/' + imageSrc
+            }
+            return (
               <img
                 loading="lazy"
                 decoding="async"
-                src={src}
-                alt={alt}
+                src={imageSrc}
+                alt={alt || ''}
                 {...props}
                 style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '2em auto' }}
+                onError={(e) => {
+                  console.error('图片加载失败:', imageSrc)
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                }}
               />
-            </ImagePreview>
-          ),
+            )
+          },
         }}
       >
         {content}

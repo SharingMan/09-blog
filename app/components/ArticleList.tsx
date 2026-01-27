@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import ImagePreview from './ImagePreview'
 import './ArticleList.css'
 
 interface Article {
@@ -45,43 +44,41 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
       <div className="article-list-container">
         {articles.map((article) => {
           const coverImageUrl = getCoverImageUrl(article.coverImage)
+          // 调试信息
+          if (coverImageUrl) {
+            console.log(`文章 "${article.title}" 的封面图:`, coverImageUrl.substring(0, 100) + '...')
+          }
           return (
-            <article key={article.id} className="article-item">
-              <Link href={`/posts/${article.id}`} className="article-card">
+          <article key={article.id} className="article-item">
+            <Link href={`/posts/${article.id}`} className="article-card">
                 {coverImageUrl && (
-                  <div className="article-cover" onClick={(e) => e.stopPropagation()}>
-                    <ImagePreview src={coverImageUrl} alt={article.title}>
-                      <img
-                        src={coverImageUrl}
-                        alt={article.title}
-                        loading="lazy"
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
-                          objectFit: 'cover', 
-                          display: 'block',
-                          minHeight: '200px',
-                          backgroundColor: 'var(--hover-overlay)'
-                        }}
-                        onError={(e) => {
-                          console.error('封面图加载失败:', coverImageUrl)
-                          // 如果图片加载失败，显示占位符而不是隐藏
-                          const target = e.target as HTMLImageElement
-                          target.style.display = 'none'
-                          const coverDiv = target.closest('.article-cover')
-                          if (coverDiv) {
-                            // 不隐藏，而是显示占位符
-                            const placeholder = document.createElement('div')
-                            placeholder.style.cssText = 'width:100%;height:100%;background:var(--hover-overlay);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);font-size:0.875rem;'
-                            placeholder.textContent = '图片加载失败'
-                            coverDiv.appendChild(placeholder)
-                          }
-                        }}
-                        onLoad={() => {
-                          console.log('封面图加载成功:', coverImageUrl)
-                        }}
-                      />
-                    </ImagePreview>
+                  <div className="article-cover">
+                    <img
+                      src={coverImageUrl}
+                      alt={article.title}
+                      loading="lazy"
+                      crossOrigin="anonymous"
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover', 
+                        display: 'block',
+                        minHeight: '200px',
+                        backgroundColor: 'var(--hover-overlay)'
+                      }}
+                      onError={(e) => {
+                        console.error('封面图加载失败:', article.title, coverImageUrl?.substring(0, 100))
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                        const coverDiv = target.closest('.article-cover')
+                        if (coverDiv) {
+                          coverDiv.style.display = 'none'
+                        }
+                      }}
+                      onLoad={() => {
+                        console.log('封面图加载成功:', article.title)
+                      }}
+                    />
                   </div>
                 )}
               <div className="article-content">
