@@ -70,7 +70,7 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
                         console.error('封面图加载失败:', article.title, coverImageUrl?.substring(0, 100))
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'
-                        const coverDiv = target.closest('.article-cover')
+                        const coverDiv = target.closest('.article-cover') as HTMLElement | null
                         if (coverDiv) {
                           coverDiv.style.display = 'none'
                         }
