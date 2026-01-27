@@ -275,7 +275,9 @@ async function main() {
   
   // 获取最后同步时间
   const lastSyncTime = syncState.lastSyncTime ? new Date(syncState.lastSyncTime) : new Date(0);
-  console.log(`📅 最后同步时间: ${lastSyncTime.toLocaleString('zh-CN')}\n`);
+  console.log(`📅 最后同步时间: ${lastSyncTime.toLocaleString('zh-CN')} (${lastSyncTime.toISOString()})`);
+  console.log(`📅 当前时间: ${new Date().toLocaleString('zh-CN')} (${new Date().toISOString()})`);
+  console.log(`📊 已同步文章数: ${Object.keys(syncState.syncedPages || {}).length}\n`);
   
   let syncedCount = 0;
   let updatedCount = 0;
@@ -305,8 +307,12 @@ async function main() {
       // 3. 如果页面已同步且未更新（lastEditedTime <= lastSyncTime），跳过
       // 注意：使用严格比较，确保时间比较准确
       const timeDiff = lastEditedTime.getTime() - lastSyncTime.getTime();
+      const timeDiffSeconds = Math.round(timeDiff / 1000);
       if (isSynced && timeDiff <= 0) {
-        console.log(`⏭️  跳过未更新: ${title} (编辑时间: ${lastEditedTime.toLocaleString('zh-CN')}, 同步时间: ${lastSyncTime.toLocaleString('zh-CN')}, 时间差: ${timeDiff}ms)`);
+        console.log(`⏭️  跳过未更新: ${title}`);
+        console.log(`   编辑时间: ${lastEditedTime.toISOString()}`);
+        console.log(`   同步时间: ${lastSyncTime.toISOString()}`);
+        console.log(`   时间差: ${timeDiffSeconds} 秒 (${timeDiff}ms)`);
         skippedCount++;
         continue;
       }
@@ -384,9 +390,11 @@ async function main() {
     }
   }
   
-  // 保存同步状态（即使没有同步任何文章，也更新同步时间）
-  // 只有在实际同步了文章时才更新同步时间，避免跳过所有文章
-  if (syncedCount > 0 || updatedCount > 0) {
+  // 保存同步状态
+  // 在 GitHub Actions 环境中，总是更新同步时间，确保下次运行时能正确比较
+  // 在本地环境中，只有在实际同步了文章时才更新同步时间
+  const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+  if (syncedCount > 0 || updatedCount > 0 || isGitHubActions) {
     syncState.lastSyncTime = new Date().toISOString();
     saveSyncState(syncState);
     console.log(`💾 已更新同步状态，最后同步时间: ${syncState.lastSyncTime}`);
