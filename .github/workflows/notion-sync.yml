@@ -42,6 +42,9 @@ jobs:
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
           GITHUB_ACTIONS: 'true'
       
+      - name: 迁移历史文章中的远程图片到本地
+        run: node scripts/migrate-images.js
+      
       - name: 检查更改
         id: check-changes
         run: |
