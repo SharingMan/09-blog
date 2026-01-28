@@ -37,6 +37,56 @@ if (!NOTION_TOKEN || !DATABASE_ID) {
   process.exit(1);
 }
 
+// 通用重试工具（用于 Notion API / fetch 等）
+async function withRetry(fn, options = {}) {
+  const {
+    retries = 3,
+    delayMs = 2000,
+    onRetry,
+    name = 'operation',
+  } = options;
+
+  let attempt = 0;
+  // 允许 1 次初次尝试 + retries 次重试
+  const maxAttempts = Math.max(1, retries + 1);
+
+  // 记录最后一次错误，用于最终抛出
+  let lastError;
+
+  while (attempt < maxAttempts) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      attempt++;
+
+      const isLast = attempt >= maxAttempts;
+      const message = err && err.message ? err.message : String(err);
+
+      if (isLast) {
+        console.error(`❌ ${name} 失败（已重试 ${attempt - 1} 次）:`, message);
+        throw err;
+      }
+
+      console.warn(`⚠️ ${name} 出错，将在 ${delayMs}ms 后重试（第 ${attempt} 次重试）:`, message);
+      if (typeof onRetry === 'function') {
+        try {
+          onRetry(err, attempt);
+        } catch {
+          // 忽略 onRetry 中的错误
+        }
+      }
+
+      if (delayMs > 0) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+
+  // 理论上不会走到这里
+  throw lastError || new Error(`${name} 失败（未知错误）`);
+}
+
 // 格式化数据库 ID
 function formatDatabaseId(id) {
   if (id.includes('-')) return id;
@@ -62,7 +112,7 @@ function calculateReadTime(content) {
   return `${minutes} 分钟`;
 }
 
-// 下载图片并保存到本地，返回本地路径
+// 下载图片并保存到本地，返回本地路径（带重试）
 async function downloadImageToLocal(imageUrl, articleId, index) {
   try {
     // 仅处理 http/https 图片
@@ -99,7 +149,15 @@ async function downloadImageToLocal(imageUrl, articleId, index) {
 
     console.log(`🖼  正在下载图片: ${imageUrl}`);
 
-    const res = await fetch(imageUrl);
+    const res = await withRetry(
+      () => fetch(imageUrl),
+      {
+        retries: 2,
+        delayMs: 1500,
+        name: '图片下载',
+      }
+    );
+
     if (!res.ok) {
       console.warn(`⚠️  图片下载失败 (${res.status}): ${imageUrl}`);
       return imageUrl;
@@ -112,7 +170,7 @@ async function downloadImageToLocal(imageUrl, articleId, index) {
     console.log(`🖼  图片已保存: /images/articles/${filename}`);
     return `/images/articles/${filename}`;
   } catch (error) {
-    console.warn(`⚠️  下载图片出错: ${imageUrl}`, error.message || error);
+    console.warn(`⚠️  下载图片出错: ${imageUrl}`, error && error.message ? error.message : error);
     return imageUrl;
   }
 }
@@ -156,10 +214,17 @@ async function processImagesInContent(content, articleId) {
 async function blocksToMarkdown(notion, blockId, depth = 0) {
   if (depth > 10) return '';
   
-  const blocks = await notion.blocks.children.list({
-    block_id: blockId,
-    page_size: 100,
-  });
+  const blocks = await withRetry(
+    () => notion.blocks.children.list({
+      block_id: blockId,
+      page_size: 100,
+    }),
+    {
+      retries: 3,
+      delayMs: 2000,
+      name: '获取页面内容块',
+    }
+  );
   
   let markdown = '';
   
@@ -327,12 +392,19 @@ async function main() {
   const formattedDbId = formatDatabaseId(DATABASE_ID);
   const syncState = readSyncState();
   
-  // 查询数据库
+  // 查询数据库（带重试）
   console.log(`🔍 正在搜索 Notion 数据库: ${formattedDbId}\n`);
-  const searchResponse = await notion.search({
-    filter: { property: 'object', value: 'page' },
-    sort: { direction: 'descending', timestamp: 'last_edited_time' }
-  });
+  const searchResponse = await withRetry(
+    () => notion.search({
+      filter: { property: 'object', value: 'page' },
+      sort: { direction: 'descending', timestamp: 'last_edited_time' }
+    }),
+    {
+      retries: 3,
+      delayMs: 3000,
+      name: '搜索 Notion 页面',
+    }
+  );
   
   console.log(`📋 搜索到 ${searchResponse.results.length} 个页面（未过滤）\n`);
   
@@ -365,6 +437,49 @@ async function main() {
   });
   
   console.log(`📚 过滤后找到 ${pages.length} 个页面（属于数据库 ${formattedDbId}）\n`);
+  
+  // =========================
+  // 同步删除 Notion 中已移除的页面
+  // =========================
+  // 仅在当前数据库中至少有 1 个页面时才执行删除逻辑，
+  // 避免因为权限错误 / 配置错误导致误删所有本地文章。
+  if (pages.length > 0) {
+    const currentPageIds = new Set(pages.map(p => p.id));
+    const syncedPages = syncState.syncedPages || {};
+    const allSyncedPageIds = Object.keys(syncedPages);
+
+    const removedPageIds = allSyncedPageIds.filter(pageId => !currentPageIds.has(pageId));
+
+    if (removedPageIds.length > 0) {
+      console.log(`🗑  检测到 ${removedPageIds.length} 个已从 Notion 数据库中移除的页面，将同步删除本地文章：`);
+    }
+
+    for (const removedPageId of removedPageIds) {
+      const articleId = syncedPages[removedPageId];
+      const articlePath = path.join(process.cwd(), 'app/data/articles', `${articleId}.md`);
+
+      try {
+        if (fs.existsSync(articlePath)) {
+          fs.unlinkSync(articlePath);
+          console.log(`   - 已删除本地文章文件: ${articleId}.md （来自页面 ${removedPageId}）`);
+        } else {
+          console.log(`   - 本地文章文件不存在，跳过删除: ${articleId}.md （来自页面 ${removedPageId}）`);
+        }
+      } catch (err) {
+        console.warn(`⚠️  删除本地文章失败: ${articleId}.md （页面 ${removedPageId}）`, err && err.message ? err.message : err);
+        // 出错时，不删除映射，留给下次同步重试
+        continue;
+      }
+
+      // 删除同步状态中的映射
+      delete syncedPages[removedPageId];
+    }
+
+    // 写回可能被修改过的 syncedPages
+    syncState.syncedPages = syncedPages;
+  } else {
+    console.log('ℹ️  当前数据库没有任何页面，出于安全考虑，本次不同步删除本地文章。');
+  }
   
   // 获取最后同步时间
   const lastSyncTime = syncState.lastSyncTime ? new Date(syncState.lastSyncTime) : new Date(0);
@@ -484,15 +599,20 @@ async function main() {
   }
   
   // 保存同步状态
-  // 在 GitHub Actions 环境中，总是更新同步时间，确保下次运行时能正确比较
-  // 在本地环境中，只有在实际同步了文章时才更新同步时间
-  const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
-  if (syncedCount > 0 || updatedCount > 0 || isGitHubActions) {
+  // 为了避免在 Notion 网络异常时“错误地推进同步时间”，
+  // 这里统一改为：只有在本次实际新增 / 更新 / 删除了文章，才更新 lastSyncTime。
+  const changedBySync =
+    syncedCount > 0 ||
+    updatedCount > 0;
+
+  const changedByDeletion = true; // 上面删除逻辑已经直接修改了 syncState.syncedPages（如有）
+
+  if (changedBySync || changedByDeletion) {
     syncState.lastSyncTime = new Date().toISOString();
     saveSyncState(syncState);
     console.log(`💾 已更新同步状态，最后同步时间: ${syncState.lastSyncTime}`);
   } else {
-    console.log(`ℹ️  没有新文章或更新，保持原有同步时间: ${syncState.lastSyncTime}`);
+    console.log(`ℹ️  没有文章变更，保持原有同步时间: ${syncState.lastSyncTime}`);
   }
   
   console.log(`\n📊 同步完成:`);

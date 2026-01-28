@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sync": "node scripts/github-actions-sync.js && node scripts/migrate-images.js"
   },
   "dependencies": {
     "@notionhq/client": "^5.8.0",

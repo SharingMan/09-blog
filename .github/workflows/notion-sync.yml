@@ -1,17 +1,8 @@
-name: Notion 自动同步
+name: Notion 手动同步提示
 
 on:
-  # 定时触发：每天 UTC 时间 2:00（北京时间 10:00）执行
-  schedule:
-    - cron: '0 2 * * *'
-  # 手动触发
+  # 仅支持手动触发，用作“操作说明”，不再真正连接 Notion
   workflow_dispatch:
-  # 推送代码时触发（可选）
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/notion-sync.yml'
 
 jobs:
   sync:
@@ -20,45 +11,23 @@ jobs:
       contents: write
     
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-      
-      - name: 设置 Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: 安装依赖
-        run: npm ci
-      
-      - name: 运行同步脚本
-        run: node scripts/github-actions-sync.js
-        env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          GITHUB_ACTIONS: 'true'
-      
-      - name: 迁移历史文章中的远程图片到本地
-        run: node scripts/migrate-images.js
-      
-      - name: 检查更改
-        id: check-changes
+      - name: 提示信息（不再自动连 Notion）
         run: |
-          git diff --exit-code app/data/articles/ public/images/articles/ .notion-sync-state.json || echo "has_changes=true" >> $GITHUB_OUTPUT
-      
-      - name: 提交更改
-        if: steps.check-changes.outputs.has_changes == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          # 先拉取最新更改，避免冲突
-          git pull --rebase origin main || true
-          git add app/data/articles/ public/images/articles/ .notion-sync-state.json
-          git commit -m "🤖 自动同步 Notion 文章 [skip ci]"
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:main
+          echo "🔔 当前仓库已改为【本地手动同步 Notion】模式。"
+          echo ""
+          echo "如果你想更新文章，请在本地电脑上执行以下步骤："
+          echo "1) 打开终端，进入项目目录："
+          echo "   cd /Users/jiyingshe/Desktop/AI学习/09-blog"
+          echo ""
+          echo "2) 需要从 Notion 拉取最新内容时（网络正常时再执行）："
+          echo "   node scripts/github-actions-sync.js"
+          echo ""
+          echo "3) 如果是旧文章，想迁移历史图片，可选执行："
+          echo "   node scripts/migrate-images.js"
+          echo ""
+          echo "4) 确认文章和图片没问题后，提交并推送："
+          echo "   git add ."
+          echo "   git commit -m \"更新文章\""
+          echo "   git push origin main"
+          echo ""
+          echo "👉 GitHub Actions 不再自动连接 Notion，也不会自动提交任何文件。"
