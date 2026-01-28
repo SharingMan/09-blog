@@ -52,11 +52,11 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
           <article key={article.id} className="article-item">
             <Link href={`/posts/${article.id}`} className="article-card">
                 {coverImageUrl && (
-                  <div className="article-cover">
-                    <img
+                <div className="article-cover">
+                  <img
                       src={coverImageUrl}
-                      alt={article.title}
-                      loading="lazy"
+                    alt={article.title}
+                    loading="lazy"
                       crossOrigin="anonymous"
                       style={{ 
                         width: '100%', 
@@ -78,9 +78,9 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
                       onLoad={() => {
                         console.log('封面图加载成功:', article.title)
                       }}
-                    />
-                  </div>
-                )}
+                  />
+                </div>
+              )}
               <div className="article-content">
                 <div className="article-meta-top">
                   {article.category && (

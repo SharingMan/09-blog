@@ -86,19 +86,19 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
               imageSrc = '/' + imageSrc
             }
             return (
-              <img
-                loading="lazy"
-                decoding="async"
+            <img
+              loading="lazy"
+              decoding="async"
                 src={imageSrc}
                 alt={alt || ''}
-                {...props}
-                style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '2em auto' }}
+              {...props}
+              style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '2em auto' }}
                 onError={(e) => {
                   console.error('图片加载失败:', imageSrc)
                   const target = e.target as HTMLImageElement
                   target.style.display = 'none'
                 }}
-              />
+            />
             )
           },
         }}
