@@ -4,7 +4,7 @@ import { getAllArticles } from '../data/articles/index'
 export async function GET() {
   try {
     const articles = getAllArticles()
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xinhaiblog.top'
     
     const rssItems = articles.map(article => {
       const articleUrl = `${siteUrl}/posts/${article.id}`

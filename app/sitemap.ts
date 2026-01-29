@@ -3,7 +3,7 @@ import { getAllArticles } from './data/articles'
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const articles = getAllArticles()
-    const baseUrl = 'https://xinhaiblog.top'
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xinhaiblog.top'
 
     // 基础页面
     const routes = [
