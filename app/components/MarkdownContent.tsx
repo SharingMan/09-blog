@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import './MarkdownContent.css'
 
 interface MarkdownContentProps {
-  content: string
+  content?: string
 }
 
 // 生成标题 ID（支持中文）
@@ -34,7 +34,7 @@ function extractText(children: any): string {
   return ''
 }
 
-export default function MarkdownContent({ content }: MarkdownContentProps) {
+export default function MarkdownContent({ content = '' }: MarkdownContentProps) {
   return (
     <div className="markdown-content">
       <ReactMarkdown
@@ -109,4 +109,3 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     </div>
   )
 }
-

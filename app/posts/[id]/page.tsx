@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: ArticleDetailProps): Promise<
     keywords.push(...article.tags)
   }
 
-  // 提取文章摘要（前200字符）
-  const excerpt = article.excerpt || article.content
+  // 提取文章摘要（前200字符） - 修复类型错误
+  const excerpt = article.excerpt || (article.content || '')
     .replace(/[#*`>]/g, '')
     .replace(/\n+/g, ' ')
     .trim()
@@ -100,7 +100,7 @@ export default async function ArticleDetail({ params }: ArticleDetailProps) {
               )}
             </div>
             <div className="article-content reading-content">
-              <MarkdownContent content={article.content} />
+              <MarkdownContent content={article.content || ''} />
             </div>
 
             <nav className="article-navigation">
