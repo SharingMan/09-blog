@@ -5,17 +5,18 @@ import Link from 'next/link'
 import './TagDetail.css'
 
 interface TagDetailProps {
-  params: {
+  params: Promise<{
     tag: string
-  }
+  }>
 }
 
-export default function TagDetailPage({ params }: TagDetailProps) {
-  const tag = decodeURIComponent(params.tag)
+export default async function TagDetailPage({ params }: TagDetailProps) {
+  const { tag: tagParam } = await params
+  const tag = decodeURIComponent(tagParam)
   const articles = getArticlesByTag(tag)
   const allTags = getAllTags()
   const allArticles = getArticleList()
-  
+
   if (!allTags.includes(tag)) {
     return (
       <>
@@ -30,7 +31,7 @@ export default function TagDetailPage({ params }: TagDetailProps) {
       </>
     )
   }
-  
+
   return (
     <>
       <Navbar articles={allArticles} />
@@ -41,17 +42,16 @@ export default function TagDetailPage({ params }: TagDetailProps) {
             <span className="breadcrumb-separator">/</span>
             <span>{tag}</span>
           </nav>
-          
+
           <h1 className="tag-detail-title">
             <span className="tag-prefix">#</span>
             {tag}
           </h1>
           <p className="tag-count">共 {articles.length} 篇文章</p>
-          
+
           <ArticleList articles={articles} showExcerpt={true} />
         </div>
       </main>
     </>
   )
 }
-

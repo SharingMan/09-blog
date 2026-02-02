@@ -5,17 +5,18 @@ import Link from 'next/link'
 import './CategoryDetail.css'
 
 interface CategoryDetailProps {
-  params: {
+  params: Promise<{
     category: string
-  }
+  }>
 }
 
-export default function CategoryDetailPage({ params }: CategoryDetailProps) {
-  const category = decodeURIComponent(params.category)
+export default async function CategoryDetailPage({ params }: CategoryDetailProps) {
+  const { category: categoryParam } = await params
+  const category = decodeURIComponent(categoryParam)
   const articles = getArticlesByCategory(category)
   const allCategories = getAllCategories()
   const allArticles = getArticleList()
-  
+
   if (!allCategories.includes(category)) {
     return (
       <>
@@ -30,7 +31,7 @@ export default function CategoryDetailPage({ params }: CategoryDetailProps) {
       </>
     )
   }
-  
+
   return (
     <>
       <Navbar articles={allArticles} />
@@ -41,14 +42,13 @@ export default function CategoryDetailPage({ params }: CategoryDetailProps) {
             <span className="breadcrumb-separator">/</span>
             <span>{category}</span>
           </nav>
-          
+
           <h1 className="category-detail-title">{category}</h1>
           <p className="category-count">共 {articles.length} 篇文章</p>
-          
+
           <ArticleList articles={articles} showExcerpt={true} />
         </div>
       </main>
     </>
   )
 }
-
