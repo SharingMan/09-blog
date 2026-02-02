@@ -70,10 +70,59 @@ body {
   overflow-x: hidden;
 }
 
-/* 移动端字体大小优化 */
-@media (max-width: 480px) {
+/* 移动端字体大小和布局优化 */
+@media (max-width: 768px) {
   body {
     font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* 防止内容溢出 */
+  * {
+    max-width: 100%;
+  }
+
+  /* 图片响应式 */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* 代码块横向滚动优化 */
+  pre {
+    overflow-x: auto;
+    max-width: calc(100vw - 2rem);
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.85rem;
+  }
+
+  /* 内联代码换行 */
+  code {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* 表格横向滚动 */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .reading-content {
+    padding: 0 0.75rem;
   }
 }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Noto_Serif_SC, Playfair_Display, Newsreader } from 'next/font/google'
 import './globals.css'
+import './components/mobile-fixes.css'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -93,4 +94,3 @@ export default function RootLayout({
     </html>
   )
 }
-
