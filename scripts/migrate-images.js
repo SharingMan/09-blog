@@ -11,58 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
-
-// 下载图片并保存到本地，返回本地路径
-async function downloadImageToLocal(imageUrl, articleId, index) {
-  try {
-    if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-      return imageUrl;
-    }
-
-    const imagesDir = path.join(process.cwd(), 'public/images/articles');
-    if (!fs.existsSync(imagesDir)) {
-      fs.mkdirSync(imagesDir, { recursive: true });
-    }
-
-    // 从 URL 中提取扩展名（忽略查询参数）
-    let ext = '.jpg';
-    try {
-      const urlObj = new URL(imageUrl);
-      const pathname = urlObj.pathname;
-      const guessedExt = path.extname(pathname);
-      if (guessedExt) {
-        ext = guessedExt;
-      }
-    } catch {
-      // ignore
-    }
-
-    const safeArticleId = String(articleId || 'article').replace(/[^a-zA-Z0-9_-]/g, '');
-    const filename = `${safeArticleId}-${index}${ext}`;
-    const filepath = path.join(imagesDir, filename);
-
-    if (fs.existsSync(filepath)) {
-      return `/images/articles/${filename}`;
-    }
-
-    console.log(`🖼  下载图片: ${imageUrl}`);
-    const res = await fetch(imageUrl);
-    if (!res.ok) {
-      console.warn(`⚠️  下载失败 (${res.status}): ${imageUrl}`);
-      return imageUrl;
-    }
-
-    const arrayBuffer = await res.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    fs.writeFileSync(filepath, buffer);
-
-    console.log(`✅ 保存图片: /images/articles/${filename}`);
-    return `/images/articles/${filename}`;
-  } catch (error) {
-    console.warn(`⚠️  下载出错: ${imageUrl}`, error.message || error);
-    return imageUrl;
-  }
-}
+const { downloadImageToLocal } = require('./utils/download-image');
 
 // 处理单篇文章内容
 async function processArticleFile(filePath) {

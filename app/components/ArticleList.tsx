@@ -1,21 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import type { ArticleListItem } from '@/types/article'
 import './ArticleList.css'
 
-interface Article {
-  id: string
-  title: string
-  date: string
-  readTime: string
-  excerpt?: string
-  category?: string
-  tags?: string[]
-  coverImage?: string
-}
-
 interface ArticleListProps {
-  articles: Article[]
+  articles: ArticleListItem[]
   showExcerpt?: boolean
 }
 
@@ -44,10 +34,6 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
       <div className="article-list-container">
         {articles.map((article) => {
           const coverImageUrl = getCoverImageUrl(article.coverImage)
-          // 调试信息
-          if (coverImageUrl) {
-            console.log(`文章 "${article.title}" 的封面图:`, coverImageUrl.substring(0, 100) + '...')
-          }
           return (
           <article key={article.id} className="article-item">
             <Link href={`/posts/${article.id}`} className="article-card">
@@ -58,25 +44,20 @@ export default function ArticleList({ articles, showExcerpt = false }: ArticleLi
                     alt={article.title}
                     loading="lazy"
                       crossOrigin="anonymous"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'cover', 
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        objectFit: 'cover',
                         display: 'block',
-                        minHeight: '200px',
                         backgroundColor: 'var(--hover-overlay)'
                       }}
                       onError={(e) => {
-                        console.error('封面图加载失败:', article.title, coverImageUrl?.substring(0, 100))
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'
                         const coverDiv = target.closest('.article-cover') as HTMLElement | null
                         if (coverDiv) {
                           coverDiv.style.display = 'none'
                         }
-                      }}
-                      onLoad={() => {
-                        console.log('封面图加载成功:', article.title)
                       }}
                   />
                 </div>
