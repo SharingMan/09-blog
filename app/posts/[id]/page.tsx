@@ -7,14 +7,15 @@ import Link from 'next/link'
 import './ArticleDetail.css'
 
 interface ArticleDetailProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: ArticleDetailProps): Promise<Metadata> {
-  const article = getArticleById(params.id)
-  
+  const { id } = await params
+  const article = getArticleById(id)
+
   if (!article) {
     return {
       title: '文章未找到',
@@ -29,8 +30,8 @@ export async function generateMetadata({ params }: ArticleDetailProps): Promise<
     keywords.push(...article.tags)
   }
 
-  // 提取文章摘要（前200字符）
-  const excerpt = article.excerpt || article.content
+  // 提取文章摘要（前200字符） - 修复类型错误
+  const excerpt = article.excerpt || (article.content || '')
     .replace(/[#*`>]/g, '')
     .replace(/\n+/g, ' ')
     .trim()
@@ -51,8 +52,9 @@ export async function generateMetadata({ params }: ArticleDetailProps): Promise<
   }
 }
 
-export default function ArticleDetail({ params }: ArticleDetailProps) {
-  const article = getArticleById(params.id) || {
+export default async function ArticleDetail({ params }: ArticleDetailProps) {
+  const { id } = await params
+  const article = getArticleById(id) || {
     id: '',
     title: '文章未找到',
     date: '',
@@ -60,7 +62,7 @@ export default function ArticleDetail({ params }: ArticleDetailProps) {
     content: '抱歉，这篇文章不存在。'
   }
 
-  const { prev, next } = getAdjacentArticles(params.id)
+  const { prev, next } = getAdjacentArticles(id)
   const allArticles = getArticleList()
 
   return (
@@ -86,8 +88,8 @@ export default function ArticleDetail({ params }: ArticleDetailProps) {
               {article.tags && article.tags.length > 0 && (
                 <div className="article-header-tags">
                   {article.tags.map((tag) => (
-                    <Link 
-                      key={tag} 
+                    <Link
+                      key={tag}
                       href={`/tags/${encodeURIComponent(tag)}`}
                       className="article-header-tag"
                     >
@@ -98,9 +100,9 @@ export default function ArticleDetail({ params }: ArticleDetailProps) {
               )}
             </div>
             <div className="article-content reading-content">
-              <MarkdownContent content={article.content} />
+              <MarkdownContent content={article.content || ''} />
             </div>
-            
+
             <nav className="article-navigation">
               {prev && (
                 <Link href={`/posts/${prev.id}`} className="nav-link nav-prev">
@@ -116,7 +118,7 @@ export default function ArticleDetail({ params }: ArticleDetailProps) {
               )}
             </nav>
           </div>
-          
+
           <aside className="article-sidebar">
             <TableOfContents />
           </aside>
@@ -125,4 +127,3 @@ export default function ArticleDetail({ params }: ArticleDetailProps) {
     </>
   )
 }
-

@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import { Inter, Noto_Serif_SC, Playfair_Display, Newsreader } from 'next/font/google'
 import './globals.css'
+import './components/mobile-fixes.css'
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+  preload: true,
 })
 
 const notoSerifSC = Noto_Serif_SC({
@@ -13,18 +15,21 @@ const notoSerifSC = Noto_Serif_SC({
   subsets: ['latin'],
   variable: '--font-noto-serif-sc',
   display: 'swap',
+  preload: true,
 })
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
   display: 'swap',
+  preload: false,
 })
 
 const newsreader = Newsreader({
   subsets: ['latin'],
   variable: '--font-newsreader',
   display: 'swap',
+  preload: false,
 })
 
 export const metadata: Metadata = {
@@ -80,7 +85,7 @@ export default function RootLayout({
       className={`${inter.variable} ${notoSerifSC.variable} ${playfair.variable} ${newsreader.variable}`}
     >
       <head>
-        <link rel="alternate" type="application/rss+xml" title="新海说 RSS" href="/feed.xml" />
+        <link rel="alternate" type="application/rss+xml" title="新海说 RSS" href="/rss" />
         <meta name="author" content="新海" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href="https://xinhaiblog.top" />
@@ -89,4 +94,3 @@ export default function RootLayout({
     </html>
   )
 }
-

@@ -1,0 +1,198 @@
+/* 移动端布局优化 - 修复博文显示不全问题 */
+
+/* 全局移动端修复 */
+@media (max-width: 768px) {
+  /* 容器宽度限制 */
+  .article-detail,
+  .markdown-content,
+  .reading-content {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 图片响应式修复 */
+  .markdown-content img,
+  .article-content img,
+  img {
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    object-fit: contain !important;
+  }
+
+  /* 代码块横向滚动修复 */
+  .markdown-content pre,
+  pre {
+    max-width: calc(100vw - 2rem) !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    white-space: pre !important;
+    word-break: keep-all !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* 内联代码换行 */
+  .markdown-content code:not(pre code),
+  code:not(pre code) {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: pre-wrap !important;
+  }
+
+  /* 表格滚动修复 */
+  .markdown-content .table-wrapper,
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-width: 100% !important;
+  }
+
+  .markdown-content table,
+  table {
+    min-width: max-content !important;
+    display: table !important;
+  }
+
+  /* 文字排版优化 */
+  .markdown-content p,
+  .article-content p,
+  p {
+    text-align: left !important;
+    text-justify: none !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* 标题尺寸优化 */
+  .markdown-content h1,
+  .article-title,
+  h1 {
+    font-size: 1.8rem !important;
+    line-height: 1.3 !important;
+    word-break: break-word !important;
+  }
+
+  .markdown-content h2,
+  h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+  }
+
+  .markdown-content h3,
+  h3 {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+  }
+
+  /* 列表优化 */
+  .markdown-content ul,
+  .markdown-content ol {
+    padding-left: 1.2rem !important;
+    margin: 1rem 0 !important;
+  }
+
+  .markdown-content li {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* 引用块优化 */
+  .markdown-content blockquote,
+  blockquote {
+    padding: 0.8rem 1rem !important;
+    margin: 1.5rem 0 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* 链接优化 */
+  .markdown-content a,
+  a {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
+/* 小屏幕进一步优化 */
+@media (max-width: 480px) {
+  .article-detail {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .markdown-content,
+  .reading-content {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+  }
+
+  /* 更小的标题 */
+  .markdown-content h1,
+  .article-title,
+  h1 {
+    font-size: 1.6rem !important;
+  }
+
+  .markdown-content h2,
+  h2 {
+    font-size: 1.3rem !important;
+  }
+
+  .markdown-content h3,
+  h3 {
+    font-size: 1.15rem !important;
+  }
+
+  /* 更紧凑的间距 */
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4 {
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.8rem !important;
+  }
+
+  .markdown-content p {
+    margin-bottom: 1rem !important;
+  }
+
+  /* 代码块更小字体 */
+  .markdown-content pre,
+  pre {
+    font-size: 0.75rem !important;
+    padding: 0.8rem !important;
+  }
+}
+
+/* 超小屏幕 */
+@media (max-width: 375px) {
+  .article-detail {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .markdown-content,
+  .reading-content {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* 横屏手机优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .article-detail {
+    padding-top: calc(50px + 1rem) !important;
+  }
+
+  .navbar {
+    padding: 0.25rem 0 !important;
+  }
+}

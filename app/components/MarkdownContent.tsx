@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import './MarkdownContent.css'
 
 interface MarkdownContentProps {
-  content: string
+  content?: string
 }
 
 // 生成标题 ID（支持中文）
@@ -34,7 +34,7 @@ function extractText(children: any): string {
   return ''
 }
 
-export default function MarkdownContent({ content }: MarkdownContentProps) {
+export default function MarkdownContent({ content = '' }: MarkdownContentProps) {
   return (
     <div className="markdown-content">
       <ReactMarkdown
@@ -85,16 +85,17 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
               // 如果是相对路径但没有 / 开头，添加 /
               imageSrc = '/' + imageSrc
             }
+            // 过滤掉 width 和 height 属性，避免尺寸不匹配警告
+            const { width, height, ...imageProps } = props
             return (
             <img
               loading="lazy"
               decoding="async"
                 src={imageSrc}
                 alt={alt || ''}
-              {...props}
+              {...imageProps}
               style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '2em auto' }}
                 onError={(e) => {
-                  console.error('图片加载失败:', imageSrc)
                   const target = e.target as HTMLImageElement
                   target.style.display = 'none'
                 }}
@@ -108,4 +109,3 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     </div>
   )
 }
-

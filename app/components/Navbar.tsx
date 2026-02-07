@@ -3,24 +3,17 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import SearchBar from './SearchBar'
+import type { ArticleListItem } from '@/types/article'
 import './Navbar.css'
 
-interface Article {
-  id: string
-  title: string
-  date: string
-  readTime: string
-  excerpt?: string
-}
-
 interface NavbarProps {
-  articles?: Article[]
+  articles?: ArticleListItem[]
 }
 
 export default function Navbar({ articles = [] }: NavbarProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [scrolled, setScrolled] = useState(false)
-  const [clientArticles, setClientArticles] = useState<Article[]>(articles)
+  const [clientArticles, setClientArticles] = useState<ArticleListItem[]>(articles)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

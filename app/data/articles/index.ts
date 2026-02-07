@@ -1,17 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-
-export interface Article {
-  id: string
-  title: string
-  date: string
-  readTime: string
-  content: string
-  excerpt?: string
-  category?: string
-  tags?: string[]
-  coverImage?: string
-}
+import type { Article, ArticleListItem, ArchiveGroup } from '@/types/article'
 
 // 解析 Markdown 文件的前置元数据
 function parseMarkdownFile(filePath: string): Article | null {
@@ -113,17 +102,11 @@ export function getAllArticles(): Article[] {
 }
 
 // 获取文章列表（不包含完整内容）
-export function getArticleList(): Omit<Article, 'content'>[] {
-  return getAllArticles().map(({ content, ...rest }) => rest)
+export function getArticleList(): ArticleListItem[] {
+  return getAllArticles().map(({ content, ...rest }) => rest) as ArticleListItem[]
 }
 
 // 按年月归档文章
-export interface ArchiveGroup {
-  year: string
-  month: string
-  articles: Omit<Article, 'content'>[]
-}
-
 export function getArchivedArticles(): ArchiveGroup[] {
   const articles = getArticleList()
   const grouped: Record<string, ArchiveGroup> = {}
@@ -158,8 +141,8 @@ export function getArchivedArticles(): ArchiveGroup[] {
 
 // 获取相邻文章（上一篇/下一篇）
 export function getAdjacentArticles(currentId: string): {
-  prev: Omit<Article, 'content'> | null
-  next: Omit<Article, 'content'> | null
+  prev: ArticleListItem | null
+  next: ArticleListItem | null
 } {
   const articles = getArticleList()
   const currentIndex = articles.findIndex(a => a.id === currentId)
@@ -197,7 +180,7 @@ export function getAllCategories(): string[] {
 }
 
 // 根据分类获取文章
-export function getArticlesByCategory(category: string): Omit<Article, 'content'>[] {
+export function getArticlesByCategory(category: string): ArticleListItem[] {
   return getArticleList().filter(article => article.category === category)
 }
 
@@ -216,7 +199,7 @@ export function getAllTags(): string[] {
 }
 
 // 根据标签获取文章
-export function getArticlesByTag(tag: string): Omit<Article, 'content'>[] {
+export function getArticlesByTag(tag: string): ArticleListItem[] {
   return getArticleList().filter(article =>
     article.tags && article.tags.includes(tag)
   )
