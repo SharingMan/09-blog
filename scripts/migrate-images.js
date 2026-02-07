@@ -12,6 +12,20 @@
 const fs = require('fs');
 const path = require('path');
 
+// 带超时的 fetch，防止单张图片下载卡太久
+async function fetchWithTimeout(url, options = {}) {
+  const { timeoutMs = 15000, ...rest } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, { ...rest, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 // 下载图片并保存到本地，返回本地路径
 async function downloadImageToLocal(imageUrl, articleId, index) {
   try {
@@ -46,7 +60,7 @@ async function downloadImageToLocal(imageUrl, articleId, index) {
     }
 
     console.log(`🖼  下载图片: ${imageUrl}`);
-    const res = await fetch(imageUrl);
+    const res = await fetchWithTimeout(imageUrl, { timeoutMs: 15000 });
     if (!res.ok) {
       console.warn(`⚠️  下载失败 (${res.status}): ${imageUrl}`);
       return imageUrl;

@@ -40,8 +40,9 @@ if (!NOTION_TOKEN || !DATABASE_ID) {
 // 通用重试工具（用于 Notion API / fetch 等）
 async function withRetry(fn, options = {}) {
   const {
-    retries = 3,
-    delayMs = 2000,
+    // 默认重试次数和间隔调低，避免在网络很差时卡太久
+    retries = 1,
+    delayMs = 1500,
     onRetry,
     name = 'operation',
   } = options;
@@ -85,6 +86,20 @@ async function withRetry(fn, options = {}) {
 
   // 理论上不会走到这里
   throw lastError || new Error(`${name} 失败（未知错误）`);
+}
+
+// 带超时的 fetch，防止单次请求挂起太久
+async function fetchWithTimeout(url, options = {}) {
+  const { timeoutMs = 15000, ...rest } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, { ...rest, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
 }
 
 // 格式化数据库 ID
@@ -149,11 +164,12 @@ async function downloadImageToLocal(imageUrl, articleId, index) {
 
     console.log(`🖼  正在下载图片: ${imageUrl}`);
 
+    // 使用带超时的 fetch，并且不做多次重试，避免在网络差时长时间卡住
     const res = await withRetry(
-      () => fetch(imageUrl),
+      () => fetchWithTimeout(imageUrl, { timeoutMs: 15000 }),
       {
-        retries: 2,
-        delayMs: 1500,
+        retries: 0,
+        delayMs: 0,
         name: '图片下载',
       }
     );
@@ -212,23 +228,52 @@ async function processImagesInContent(content, articleId) {
 
 // 将 Notion 块转换为 Markdown
 async function blocksToMarkdown(notion, blockId, depth = 0) {
-  if (depth > 10) return '';
-  
-  const blocks = await withRetry(
-    () => notion.blocks.children.list({
+  if (depth > 15) {
+    console.warn(`⚠️ 达到最大深度限制 (${depth})，停止递归处理`);
+    return '';
+  }
+
+  console.log(`🔍 正在处理块 ${blockId}（深度: ${depth}）`);
+
+  // 处理分页，获取所有块
+  let allBlocks = [];
+  let cursor = null;
+
+  do {
+    const requestOptions = {
       block_id: blockId,
       page_size: 100,
-    }),
-    {
-      retries: 3,
-      delayMs: 2000,
-      name: '获取页面内容块',
+    };
+
+    // 只有当cursor存在时才添加start_cursor参数
+    if (cursor) {
+      requestOptions.start_cursor = cursor;
     }
-  );
+
+    const blocks = await withRetry(
+      () => notion.blocks.children.list(requestOptions),
+      {
+        retries: 5,
+        delayMs: 3000,
+        name: `获取页面内容块（深度${depth}）`,
+      }
+    );
+
+    allBlocks.push(...blocks.results);
+    cursor = blocks.next_cursor;
+
+    if (blocks.has_more) {
+      console.log(`📄 获取更多块... 当前已获取 ${allBlocks.length} 个块`);
+    }
+  } while (cursor);
   
   let markdown = '';
-  
-  for (const block of blocks.results) {
+
+  console.log(`📝 处理 ${allBlocks.length} 个块（深度: ${depth}）`);
+
+  for (let i = 0; i < allBlocks.length; i++) {
+    const block = allBlocks[i];
+    console.log(`   处理块 ${i + 1}/${allBlocks.length} - 类型: ${block.type}`);
     switch (block.type) {
       case 'paragraph':
         const paragraphText = block.paragraph.rich_text.map(t => t.plain_text).join('');
