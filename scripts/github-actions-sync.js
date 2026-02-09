@@ -266,7 +266,7 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
       console.log(`📄 获取更多块... 当前已获取 ${allBlocks.length} 个块`);
     }
   } while (cursor);
-  
+
   let markdown = '';
 
   console.log(`📝 处理 ${allBlocks.length} 个块（深度: ${depth}）`);
@@ -281,19 +281,19 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
           markdown += paragraphText + '\n\n';
         }
         break;
-      
+
       case 'heading_1':
         markdown += '# ' + block.heading_1.rich_text.map(t => t.plain_text).join('') + '\n\n';
         break;
-      
+
       case 'heading_2':
         markdown += '## ' + block.heading_2.rich_text.map(t => t.plain_text).join('') + '\n\n';
         break;
-      
+
       case 'heading_3':
         markdown += '### ' + block.heading_3.rich_text.map(t => t.plain_text).join('') + '\n\n';
         break;
-      
+
       case 'bulleted_list_item':
         const bulletedText = block.bulleted_list_item.rich_text.map(t => t.plain_text).join('');
         if (bulletedText.trim()) {
@@ -307,7 +307,7 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
           }
         }
         break;
-      
+
       case 'numbered_list_item':
         const numberedText = block.numbered_list_item.rich_text.map(t => t.plain_text).join('');
         if (numberedText.trim()) {
@@ -321,21 +321,21 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
           }
         }
         break;
-      
+
       case 'quote':
         markdown += '> ' + block.quote.rich_text.map(t => t.plain_text).join('') + '\n\n';
         break;
-      
+
       case 'code':
         const language = block.code.language || '';
         const codeText = block.code.rich_text.map(t => t.plain_text).join('');
         markdown += '```' + language + '\n' + codeText + '\n```\n\n';
         break;
-      
+
       case 'divider':
         markdown += '---\n\n';
         break;
-      
+
       case 'image':
         let imageUrl = '';
         if (block.image.type === 'external') {
@@ -351,13 +351,35 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
           markdown += `![${imageCaption}](${imageUrl})\n\n`;
         }
         break;
-      
+
       case 'table':
         // 处理表格
         if (block.has_children && block.id) {
           const tableRows = await blocksToMarkdown(notion, block.id, depth + 1);
           if (tableRows) {
-            markdown += tableRows + '\n\n';
+            let processedTable = tableRows;
+
+            // 始终确保有分隔线，以便正确渲染为 Markdown 表格
+            const rows = tableRows.trim().split('\n');
+            if (rows.length > 0) {
+              const firstRow = rows[0];
+              // 简单检查是否已有分隔线 (有些实现可能会自己加)
+              const hasSeparator = rows.length > 1 && rows[1].includes('---');
+
+              if (!hasSeparator) {
+                // 计算列数 (通过统计管道符数量 - 1)
+                const pipeCount = (firstRow.match(/\|/g) || []).length;
+                const colCount = Math.max(1, pipeCount - 1);
+
+                // 构造分隔线 | --- | --- |
+                const separator = '|' + Array(colCount).fill(' --- ').join('|') + '|';
+                rows.splice(1, 0, separator);
+                processedTable = rows.join('\n');
+                console.log(`   🛠️  已为表格添加分隔线 (列数: ${colCount})`);
+              }
+            }
+
+            markdown += processedTable + '\n\n';
           }
         }
         break;
@@ -365,7 +387,7 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
       case 'table_row':
         // 处理表格行
         if (block.table_row && block.table_row.cells) {
-          const cells = block.table_row.cells.map(cell => 
+          const cells = block.table_row.cells.map(cell =>
             cell.map(t => t.plain_text).join('')
           ).join(' | ');
           markdown += `| ${cells} |\n`;
@@ -382,7 +404,7 @@ async function blocksToMarkdown(notion, blockId, depth = 0) {
         break;
     }
   }
-  
+
   return markdown.trim();
 }
 
@@ -413,7 +435,7 @@ async function createArticleFile(article) {
   if (!fs.existsSync(articlesDir)) {
     fs.mkdirSync(articlesDir, { recursive: true });
   }
-  
+
   // 先将内容中的远程图片下载到本地，并替换为本地路径
   const processedContent = await processImagesInContent(article.content, article.id);
 
@@ -425,18 +447,18 @@ readTime: ${article.readTime}
 ${article.category ? `category: ${article.category}\n` : ''}${article.tags && article.tags.length > 0 ? `tags: ${article.tags.join(', ')}\n` : ''}---
 
 ${processedContent}`;
-  
+
   fs.writeFileSync(filePath, frontmatter, 'utf8');
 }
 
 // 主函数
 async function main() {
   console.log('🚀 开始同步 Notion 文章...\n');
-  
+
   const notion = new Client({ auth: NOTION_TOKEN });
   const formattedDbId = formatDatabaseId(DATABASE_ID);
   const syncState = readSyncState();
-  
+
   // 查询数据库（带重试）
   console.log(`🔍 正在搜索 Notion 数据库: ${formattedDbId}\n`);
   const searchResponse = await withRetry(
@@ -450,9 +472,9 @@ async function main() {
       name: '搜索 Notion 页面',
     }
   );
-  
+
   console.log(`📋 搜索到 ${searchResponse.results.length} 个页面（未过滤）\n`);
-  
+
   // 添加调试信息
   if (searchResponse.results.length > 0) {
     const firstPage = searchResponse.results[0];
@@ -464,7 +486,7 @@ async function main() {
     }, null, 2));
     console.log('');
   }
-  
+
   const pages = searchResponse.results.filter((page) => {
     const parent = page.parent;
     if (!parent) {
@@ -480,9 +502,9 @@ async function main() {
     }
     return false;
   });
-  
+
   console.log(`📚 过滤后找到 ${pages.length} 个页面（属于数据库 ${formattedDbId}）\n`);
-  
+
   // =========================
   // 同步删除 Notion 中已移除的页面
   // =========================
@@ -525,23 +547,23 @@ async function main() {
   } else {
     console.log('ℹ️  当前数据库没有任何页面，出于安全考虑，本次不同步删除本地文章。');
   }
-  
+
   // 获取最后同步时间
   const lastSyncTime = syncState.lastSyncTime ? new Date(syncState.lastSyncTime) : new Date(0);
   console.log(`📅 最后同步时间: ${lastSyncTime.toLocaleString('zh-CN')} (${lastSyncTime.toISOString()})`);
   console.log(`📅 当前时间: ${new Date().toLocaleString('zh-CN')} (${new Date().toISOString()})`);
   console.log(`📊 已同步文章数: ${Object.keys(syncState.syncedPages || {}).length}\n`);
-  
+
   let syncedCount = 0;
   let updatedCount = 0;
   let skippedCount = 0;
-  
+
   for (const page of pages) {
     try {
       const pageId = page.id;
       const lastEditedTime = new Date(page.last_edited_time);
       const isSynced = !!syncState.syncedPages[pageId];
-      
+
       // 获取标题（先获取标题用于日志）
       const properties = page.properties || {};
       let title = '未命名';
@@ -553,7 +575,7 @@ async function main() {
           break;
         }
       }
-      
+
       // 增量同步逻辑：
       // 1. 如果页面未同步（新文章），总是同步
       // 2. 如果页面已同步但更新了（lastEditedTime > lastSyncTime），同步
@@ -569,14 +591,14 @@ async function main() {
         skippedCount++;
         continue;
       }
-      
+
       // 如果是新文章或已更新的文章，继续处理
       if (!isSynced) {
         console.log(`🆕 发现新文章: ${title}`);
       } else {
         console.log(`🔄 发现更新: ${title} (编辑时间: ${lastEditedTime.toLocaleString('zh-CN')})`);
       }
-      
+
       // 获取日期
       let dateProperty = page.created_time;
       const dateKeys = ['发布日期', 'Date', 'date'];
@@ -588,11 +610,11 @@ async function main() {
         }
       }
       const date = formatDate(dateProperty);
-      
+
       // 获取分类和标签
       const category = properties['分类']?.select?.name || properties['Category']?.select?.name;
       const tags = (properties['标签']?.multi_select || properties['Tags']?.multi_select || []).map(t => t.name);
-      
+
       // 获取页面内容
       let content = '';
       try {
@@ -602,19 +624,19 @@ async function main() {
         skippedCount++;
         continue;
       }
-      
+
       if (!content.trim()) {
         console.log(`⚠️  跳过空页面: ${title}`);
         skippedCount++;
         continue;
       }
-      
+
       // 生成或使用已有的文章 ID（先生成 ID，再用于图片文件命名）
       const articleId = syncState.syncedPages[pageId] || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       // 计算阅读时间
       const readTime = calculateReadTime(content);
-      
+
       // 创建文章文件（内部会处理并本地化图片）
       await createArticleFile({
         id: articleId,
@@ -625,11 +647,11 @@ async function main() {
         category,
         tags,
       });
-      
+
       // 更新同步状态
       const wasSynced = !!syncState.syncedPages[pageId];
       syncState.syncedPages[pageId] = articleId;
-      
+
       if (wasSynced) {
         updatedCount++;
         console.log(`✅ 更新: ${title}`);
@@ -642,7 +664,7 @@ async function main() {
       skippedCount++;
     }
   }
-  
+
   // 保存同步状态
   // 为了避免在 Notion 网络异常时“错误地推进同步时间”，
   // 这里统一改为：只有在本次实际新增 / 更新 / 删除了文章，才更新 lastSyncTime。
@@ -659,13 +681,13 @@ async function main() {
   } else {
     console.log(`ℹ️  没有文章变更，保持原有同步时间: ${syncState.lastSyncTime}`);
   }
-  
+
   console.log(`\n📊 同步完成:`);
   console.log(`   - 新增: ${syncedCount} 篇`);
   console.log(`   - 更新: ${updatedCount} 篇`);
   console.log(`   - 跳过: ${skippedCount} 篇`);
   console.log(`   - 总计: ${pages.length} 篇`);
-  
+
   if (pages.length === 0) {
     console.log(`\n⚠️  警告: 没有找到任何页面！`);
     console.log(`   请检查:`);
@@ -673,7 +695,7 @@ async function main() {
     console.log(`   2. Integration 是否有权限访问该数据库`);
     console.log(`   3. 数据库中是否有页面`);
   }
-  
+
   console.log('');
 }
 

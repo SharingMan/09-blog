@@ -247,3 +247,35 @@
     padding: calc(60px + var(--spacing-sm)) 1rem var(--spacing-lg);
   }
 }
+
+/* Table Styles */
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--spacing-md) 0;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.article-content tr {
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+}
+
+.article-content th,
+.article-content td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  min-width: 100px;
+}
+
+.article-content th {
+  background-color: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.article-content tr:nth-child(2n) {
+  background-color: var(--bg-secondary);
+}
