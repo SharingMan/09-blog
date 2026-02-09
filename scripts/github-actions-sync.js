@@ -570,8 +570,8 @@ async function main() {
       const titleKeys = ['标题', 'Title', 'title', 'Name', 'name'];
       for (const key of titleKeys) {
         const prop = properties[key];
-        if (prop?.type === 'title' && prop.title?.[0]?.plain_text) {
-          title = prop.title[0].plain_text;
+        if (prop?.type === 'title' && prop.title && prop.title.length > 0) {
+          title = prop.title.map(t => t.plain_text).join('');
           break;
         }
       }
