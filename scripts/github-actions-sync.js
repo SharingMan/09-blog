@@ -413,7 +413,10 @@ const SYNC_STATE_FILE = path.join(process.cwd(), '.notion-sync-state.json');
 function readSyncState() {
   try {
     if (fs.existsSync(SYNC_STATE_FILE)) {
-      return JSON.parse(fs.readFileSync(SYNC_STATE_FILE, 'utf8'));
+      const state = JSON.parse(fs.readFileSync(SYNC_STATE_FILE, 'utf8'));
+      // 强制重置 lastSyncTime 以进行全量同步
+      state.lastSyncTime = new Date(0).toISOString();
+      return state;
     }
   } catch (error) {
     console.error('读取同步状态失败:', error);
