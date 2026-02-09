@@ -39,11 +39,18 @@ const projects: Project[] = [
     tags: ['Next.js', 'Notion', '教程', '学习', '网站'],
     emoji: '📚',
   },
+  {
+    title: '全球新闻',
+    description: '一个聚合全球新闻资讯的平台，提供实时的新闻报道和多维度的资讯浏览体验。',
+    url: 'https://mynews-production-52a2.up.railway.app/',
+    tags: ['News', 'Next.js', 'React', '资讯'],
+    emoji: '🌍',
+  },
 ]
 
 export default function WorksPage() {
   const allArticles = getArticleList()
-  
+
   return (
     <>
       <Navbar articles={allArticles} />
@@ -69,9 +76,9 @@ export default function WorksPage() {
                     <span key={tagIndex} className="project-tag">{tag}</span>
                   ))}
                 </div>
-                <a 
-                  href={project.url} 
-                  target="_blank" 
+                <a
+                  href={project.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="project-link"
                 >
