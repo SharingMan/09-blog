@@ -19,6 +19,13 @@ interface Project {
 
 const projects: Project[] = [
   {
+    title: '财报AI助手',
+    description: '一个专为投资者和财务分析师设计的工具，支持 A 股及美股上市公司。自动聚合最近五年年报、最新季报，并生成 AI 分析指令包，助力通过 NotebookLLM 等工具进行深度价值研究。',
+    url: 'https://cninfo2notebookllm-production.up.railway.app/',
+    tags: ['AI', 'Python', '财报分析', 'NotebookLLM', '金融'],
+    emoji: '📊',
+  },
+  {
     title: '新海说博客',
     description: '我的个人博客网站，采用极简、高雅的瑞士风格设计，记录我的思考与生活。使用 Next.js 构建，支持 RSS 订阅，包含文章分类、标签、搜索等功能。',
     url: 'https://xinhaiblog.vercel.app/',
