@@ -19,6 +19,13 @@ interface Project {
 
 const projects: Project[] = [
   {
+    title: '中国美食地图',
+    description: '一个交互式的中国特产美食地图应用，涵盖34个省市的特色美食。支持地图浏览、省份搜索、美食打卡等功能，帮助你探索全国各地的地道美味。',
+    url: 'https://chinafood-ebon.vercel.app/',
+    tags: ['React', 'Vite', 'Tailwind CSS', '地图', '美食'],
+    emoji: '🍜',
+  },
+  {
     title: 'Notion Home',
     description: '将你notion 数据库同步到手机日历的工具，方便高效实用。',
     url: 'https://notionhome-production.up.railway.app/',
