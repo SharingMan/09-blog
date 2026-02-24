@@ -19,6 +19,13 @@ interface Project {
 
 const projects: Project[] = [
   {
+    title: 'Notion Home',
+    description: '一个围绕 Notion 工作流打造的个人效率产品，提供更顺手的内容组织与入口体验，帮助你把分散的信息沉淀为可持续复用的知识资产。',
+    url: 'https://notionhome-production.up.railway.app/',
+    tags: ['Notion', '效率工具', '知识管理', '产品'],
+    emoji: '🏠',
+  },
+  {
     title: '财报AI助手',
     description: '一个专为投资者和财务分析师设计的工具，支持 A 股及美股上市公司。自动聚合最近五年年报、最新季报，并生成 AI 分析指令包，助力通过 NotebookLLM 等工具进行深度价值研究。',
     url: 'https://cninfo2notebookllm-production.up.railway.app/',
