@@ -20,7 +20,7 @@ interface Project {
 const projects: Project[] = [
   {
     title: 'Notion Home',
-    description: '一个围绕 Notion 工作流打造的个人效率产品，提供更顺手的内容组织与入口体验，帮助你把分散的信息沉淀为可持续复用的知识资产。',
+    description: '将你notion 数据库同步到手机日历的工具，方便高效实用。',
     url: 'https://notionhome-production.up.railway.app/',
     tags: ['Notion', '效率工具', '知识管理', '产品'],
     emoji: '🏠',
