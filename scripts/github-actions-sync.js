@@ -157,9 +157,10 @@ async function downloadImageToLocal(imageUrl, articleId, index) {
     const filename = `${safeArticleId}-${index}${ext}`;
     const filepath = path.join(imagesDir, filename);
 
-    // 如果文件已经存在，就直接复用，避免重复下载
+    // 对已同步文章，Notion 图片可能已替换但序号不变。
+    // 这里始终覆盖同名文件，避免复用到历史旧图。
     if (fs.existsSync(filepath)) {
-      return `/images/articles/${filename}`;
+      fs.unlinkSync(filepath);
     }
 
     console.log(`🖼  正在下载图片: ${imageUrl}`);
