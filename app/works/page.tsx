@@ -118,35 +118,45 @@ export default async function WorksPage() {
           <section className="works-projects-section">
             {projectsWithQrCode.map((project, index) => (
               <div key={index} className="project-card">
-                <div className="project-body">
-                  <div className="project-main">
-                    <div className="project-header">
-                      <span className="project-emoji">{project.emoji}</span>
-                      <h2 className="project-title">{project.title}</h2>
-                    </div>
-                    <p className="project-description">{project.description}</p>
-                    <div className="project-tags">
-                      {project.tags.map((tag, tagIndex) => (
-                        <span key={tagIndex} className="project-tag">{tag}</span>
-                      ))}
-                    </div>
-                    <a
-                      href={project.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="project-link"
-                    >
-                      访问项目
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <line x1="10" y1="14" x2="21" y2="3"></line>
-                      </svg>
-                    </a>
-                  </div>
+                <div className="project-header">
+                  <span className="project-emoji">{project.emoji}</span>
+                  <h2 className="project-title">{project.title}</h2>
+                </div>
+                <p className="project-description">{project.description}</p>
+                <div className="project-tags">
+                  {project.tags.map((tag, tagIndex) => (
+                    <span key={tagIndex} className="project-tag">{tag}</span>
+                  ))}
+                </div>
+                <div className="project-actions">
+                  <a
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="project-link"
+                  >
+                    访问项目
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                  </a>
 
-                  <aside className="project-demo-panel" aria-label={`${project.title} 演示二维码`}>
-                    <div className="project-qr-card">
+                  <details className="project-demo">
+                    <summary className="project-demo-trigger">
+                      扫码体验
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                        <path d="M14 14h3v3"></path>
+                        <path d="M21 14v7h-7"></path>
+                        <path d="M14 21l3-3"></path>
+                      </svg>
+                    </summary>
+
+                    <div className="project-demo-popover" aria-label={`${project.title} 演示二维码`}>
                       <Image
                         src={project.qrCodeDataUrl}
                         alt={`${project.title} 的体验二维码`}
@@ -156,9 +166,9 @@ export default async function WorksPage() {
                         unoptimized
                       />
                       <p className="project-qr-label">扫码体验</p>
-                      <p className="project-qr-hint">手机打开更方便演示</p>
+                      <p className="project-qr-hint">{project.title}</p>
                     </div>
-                  </aside>
+                  </details>
                 </div>
               </div>
             ))}
