@@ -35,7 +35,7 @@ const projects: Project[] = [
   {
     title: '财报AI助手',
     description: '一个专为投资者和财务分析师设计的工具，支持 A 股及美股上市公司。自动聚合最近五年年报、最新季报，并生成 AI 分析指令包，助力通过 NotebookLLM 等工具进行深度价值研究。',
-    url: 'https://cninfo2notebookllm-production.up.railway.app/',
+    url: 'https://cninfo2notebookllm-h825179s0-xinhais-projects-7e8955c6.vercel.app/',
     tags: ['AI', 'Python', '财报分析', 'NotebookLLM', '金融'],
     emoji: '📊',
   },
