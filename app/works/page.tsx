@@ -67,6 +67,13 @@ const projects: Project[] = [
     tags: ['News', 'Next.js', 'React', '资讯'],
     emoji: '🌍',
   },
+  {
+    title: 'Memos',
+    description: '一个轻量的自托管备忘录与笔记工具，适合快速记录灵感、日常日志和碎片化信息，也方便做个人知识沉淀与轻量分享。',
+    url: 'http://120.53.239.172:5230/',
+    tags: ['Memos', '笔记', '自托管', '知识管理'],
+    emoji: '🗒️',
+  },
 ]
 
 export default function WorksPage() {
