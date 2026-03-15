@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
+import QRCode from 'qrcode'
 import Navbar from '../components/Navbar'
 import { getArticleList } from '../data/articles/index'
 import './Works.css'
@@ -15,6 +17,10 @@ interface Project {
   url: string
   tags: string[]
   emoji: string
+}
+
+interface ProjectWithQrCode extends Project {
+  qrCodeDataUrl: string
 }
 
 const projects: Project[] = [
@@ -76,8 +82,26 @@ const projects: Project[] = [
   },
 ]
 
-export default function WorksPage() {
+async function generateProjectQrCode(url: string) {
+  return QRCode.toDataURL(url, {
+    width: 160,
+    margin: 1,
+    errorCorrectionLevel: 'M',
+    color: {
+      dark: '#111111',
+      light: '#FFFFFFFF',
+    },
+  })
+}
+
+export default async function WorksPage() {
   const allArticles = getArticleList()
+  const projectsWithQrCode: ProjectWithQrCode[] = await Promise.all(
+    projects.map(async (project) => ({
+      ...project,
+      qrCodeDataUrl: await generateProjectQrCode(project.url),
+    }))
+  )
 
   return (
     <>
@@ -92,31 +116,50 @@ export default function WorksPage() {
           </section>
 
           <section className="works-projects-section">
-            {projects.map((project, index) => (
+            {projectsWithQrCode.map((project, index) => (
               <div key={index} className="project-card">
-                <div className="project-header">
-                  <span className="project-emoji">{project.emoji}</span>
-                  <h2 className="project-title">{project.title}</h2>
+                <div className="project-body">
+                  <div className="project-main">
+                    <div className="project-header">
+                      <span className="project-emoji">{project.emoji}</span>
+                      <h2 className="project-title">{project.title}</h2>
+                    </div>
+                    <p className="project-description">{project.description}</p>
+                    <div className="project-tags">
+                      {project.tags.map((tag, tagIndex) => (
+                        <span key={tagIndex} className="project-tag">{tag}</span>
+                      ))}
+                    </div>
+                    <a
+                      href={project.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="project-link"
+                    >
+                      访问项目
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                      </svg>
+                    </a>
+                  </div>
+
+                  <aside className="project-demo-panel" aria-label={`${project.title} 演示二维码`}>
+                    <div className="project-qr-card">
+                      <Image
+                        src={project.qrCodeDataUrl}
+                        alt={`${project.title} 的体验二维码`}
+                        className="project-qr-image"
+                        width={148}
+                        height={148}
+                        unoptimized
+                      />
+                      <p className="project-qr-label">扫码体验</p>
+                      <p className="project-qr-hint">手机打开更方便演示</p>
+                    </div>
+                  </aside>
                 </div>
-                <p className="project-description">{project.description}</p>
-                <div className="project-tags">
-                  {project.tags.map((tag, tagIndex) => (
-                    <span key={tagIndex} className="project-tag">{tag}</span>
-                  ))}
-                </div>
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="project-link"
-                >
-                  访问项目
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                  </svg>
-                </a>
               </div>
             ))}
           </section>
